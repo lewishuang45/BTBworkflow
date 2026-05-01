@@ -117,6 +117,16 @@ You can now organize project inputs more like a reusable analytics workspace.
 4. Deliver outputs with chart configs, image previews, and HTML export.
 5. Evolve into a reusable workspace product with datasets, templates, and configurable runs.
 
+## Node.js Production Track
+
+The current repository is the Python MVP reference. The planned production track is Node.js-based and documented in:
+
+- `NODE_PRODUCT_ARCHITECTURE.md`
+- `NODE_PRODUCT_PLAN.md`
+- `NODE_DEPLOYMENT_PLAN.md`
+- `NODE_BACKLOG.md`
+- `NODE_MIGRATION_MAP.md`
+
 ## Publish-safe notes
 
 - Real credentials are not included.
