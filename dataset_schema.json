@@ -1,0 +1,21 @@
+{
+  "input_file": "sampleDATA.csv",
+  "id_column": "id",
+  "id_strategy": "auto_increment",
+  "ranking_column": "Individual",
+  "metric_columns": [
+    "Individual",
+    "AI",
+    "CoachedAI",
+    "AugPair"
+  ],
+  "drop_columns": [
+    "Team",
+    "AugT"
+  ],
+  "group_labels": [
+    "top",
+    "average",
+    "bottom"
+  ]
+}

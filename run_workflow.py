@@ -20,6 +20,7 @@ OUTPUT_IMAGE = ROOT / "ppt_mockup.png"
 IMAGE_BOUNDARY_FILE = ROOT / "image_soft_boundary.json"
 LABELS_FILE = ROOT / "workflow_labels.json"
 STATE_FILE = ROOT / "workflow_state.json"
+SCHEMA_FILE = ROOT / "dataset_schema.json"
 
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -125,41 +126,84 @@ def azure_image_request(endpoint: str, api_key: str, api_version: str, deploymen
     raise RuntimeError(f"Image generation failed after retries: {last_error}")
 
 
-def assign_groups(df: pd.DataFrame) -> pd.DataFrame:
-    ranked = df.sort_values(["Individual", "id"], ascending=[False, True]).reset_index(drop=True)
+def load_schema() -> dict:
+    fallback = {
+        "input_file": "sampleDATA.csv",
+        "id_column": "id",
+        "id_strategy": "auto_increment",
+        "ranking_column": "Individual",
+        "metric_columns": ["Individual", "AI", "CoachedAI", "AugPair"],
+        "drop_columns": ["Team", "AugT"],
+        "group_labels": ["top", "average", "bottom"],
+    }
+    if not SCHEMA_FILE.exists():
+        return fallback
+    try:
+        payload = json.loads(SCHEMA_FILE.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return fallback
+    if not isinstance(payload, dict):
+        return fallback
+    merged = fallback.copy()
+    merged.update(payload)
+    return merged
+
+
+def assign_groups(df: pd.DataFrame, ranking_column: str, id_column: str, group_labels: list[str]) -> pd.DataFrame:
+    ranked = df.sort_values([ranking_column, id_column], ascending=[False, True]).reset_index(drop=True)
     total = len(ranked)
     top_count = math.ceil(total / 3)
     bottom_count = math.floor(total / 3)
     average_cutoff = total - bottom_count
+    labels_source = (group_labels or ["top", "average", "bottom"])[:3]
+    while len(labels_source) < 3:
+        labels_source.append(["top", "average", "bottom"][len(labels_source)])
     labels = []
     for idx in range(total):
         if idx < top_count:
-            labels.append("top")
+            labels.append(labels_source[0])
         elif idx >= average_cutoff:
-            labels.append("bottom")
+            labels.append(labels_source[2])
         else:
-            labels.append("average")
+            labels.append(labels_source[1])
     ranked["group"] = labels
-    return ranked.sort_values("id").reset_index(drop=True)
+    return ranked.sort_values(id_column).reset_index(drop=True)
 
 
 def prepare_dataset() -> dict:
-    df = pd.read_csv(INPUT_CSV)
-    expected = ["Individual", "AI", "CoachedAI", "AugPair", "Team", "AugT"]
-    if list(df.columns) != expected:
-        raise RuntimeError(f"Unexpected columns: {list(df.columns)}")
+    schema = load_schema()
+    input_file = ROOT / schema.get("input_file", INPUT_CSV.name)
+    id_column = schema.get("id_column", "id")
+    ranking_column = schema.get("ranking_column", "Individual")
+    metric_columns = schema.get("metric_columns", [])
+    drop_columns = schema.get("drop_columns", [])
+    group_labels = schema.get("group_labels", ["top", "average", "bottom"])
+
+    df = pd.read_csv(input_file)
+    required_columns = [ranking_column, *metric_columns]
+    missing = [column for column in required_columns if column not in df.columns]
+    if missing:
+        raise RuntimeError(f"Missing required columns from dataset schema: {missing}")
     df = df.copy()
-    df.insert(0, "id", range(1, len(df) + 1))
-    cleaned = df.drop(columns=["Team", "AugT"])
-    grouped = assign_groups(cleaned)
+    if id_column in df.columns:
+        cleaned = df.copy()
+    else:
+        df.insert(0, id_column, range(1, len(df) + 1))
+        cleaned = df
+    to_drop = [column for column in drop_columns if column in cleaned.columns]
+    if to_drop:
+        cleaned = cleaned.drop(columns=to_drop)
+    grouped = assign_groups(cleaned, ranking_column, id_column, group_labels)
     summary = {
+        "schema": schema,
         "row_count": int(len(grouped)),
         "columns": grouped.columns.tolist(),
         "group_counts": grouped["group"].value_counts().to_dict(),
-        "individual_quantiles": {
-            "q25": float(grouped["Individual"].quantile(0.25)),
-            "q50": float(grouped["Individual"].quantile(0.5)),
-            "q75": float(grouped["Individual"].quantile(0.75)),
+        "ranking_quantiles": {
+            "column": ranking_column,
+            "q25": float(grouped[ranking_column].quantile(0.25)),
+            "q50": float(grouped[ranking_column].quantile(0.5)),
+            "q75": float(grouped[ranking_column].quantile(0.75)),
         },
         "records": grouped.to_dict(orient="records"),
     }
