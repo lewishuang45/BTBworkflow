@@ -122,14 +122,14 @@ def _build_system_prompt() -> str:
 
 
 def request_suggestion(message: str, prompts: dict, labels: dict) -> dict:
-    endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-    api_key = os.getenv("AZURE_OPENAI_API_KEY")
-    api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2025-04-01-preview")
-    deployment = os.getenv("AZURE_OPENAI_TEXT_DEPLOYMENT")
+    endpoint = os.getenv("TEXT_MODEL_ENDPOINT")
+    api_key = os.getenv("TEXT_MODEL_API_KEY")
+    api_version = os.getenv("TEXT_MODEL_API_VERSION", "2025-04-01-preview")
+    deployment = os.getenv("TEXT_MODEL_DEPLOYMENT")
     if not endpoint or not api_key:
-        raise RuntimeError("Azure OpenAI credentials are not configured (.env).")
+        raise RuntimeError("Text model credentials are not configured (.env).")
     if not deployment:
-        raise RuntimeError("Azure OpenAI text deployment is not configured (.env).")
+        raise RuntimeError("Text model deployment is not configured (.env).")
 
     user_payload = {
         "user_request": message,

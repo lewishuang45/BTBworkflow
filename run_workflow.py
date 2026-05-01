@@ -576,14 +576,14 @@ def _do_patch_json(spec: dict, ctx: dict) -> None:
 
 
 def action_load_env(action: dict, ctx: dict) -> None:
-    ctx["text_endpoint"] = require_env("AZURE_OPENAI_ENDPOINT")
-    ctx["text_key"] = require_env("AZURE_OPENAI_API_KEY")
-    ctx["text_api_version"] = os.getenv("AZURE_OPENAI_API_VERSION", "2025-04-01-preview")
-    ctx["text_deployment"] = require_env("AZURE_OPENAI_TEXT_DEPLOYMENT")
-    ctx["image_endpoint"] = os.getenv("AZURE_OPENAI_IMAGE_ENDPOINT", ctx["text_endpoint"])
-    ctx["image_key"] = os.getenv("AZURE_OPENAI_IMAGE_API_KEY", ctx["text_key"])
-    ctx["image_api_version"] = os.getenv("AZURE_OPENAI_IMAGE_API_VERSION", ctx["text_api_version"])
-    ctx["image_deployment"] = require_env("AZURE_OPENAI_IMAGE_DEPLOYMENT")
+    ctx["text_endpoint"] = require_env("TEXT_MODEL_ENDPOINT")
+    ctx["text_key"] = require_env("TEXT_MODEL_API_KEY")
+    ctx["text_api_version"] = os.getenv("TEXT_MODEL_API_VERSION", "2025-04-01-preview")
+    ctx["text_deployment"] = require_env("TEXT_MODEL_DEPLOYMENT")
+    ctx["image_endpoint"] = require_env("IMAGE_MODEL_ENDPOINT")
+    ctx["image_key"] = require_env("IMAGE_MODEL_API_KEY")
+    ctx["image_api_version"] = os.getenv("IMAGE_MODEL_API_VERSION", "2025-04-01-preview")
+    ctx["image_deployment"] = require_env("IMAGE_MODEL_DEPLOYMENT")
 
 
 def action_prepare_dataset(action: dict, ctx: dict) -> None:

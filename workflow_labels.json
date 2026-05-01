@@ -16,7 +16,7 @@
       "substeps": [
         {
           "id": "read_env",
-          "label": "Read .env file"
+          "label": "Read local API config"
         },
         {
           "id": "prepare_runtime",

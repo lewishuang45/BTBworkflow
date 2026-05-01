@@ -4,11 +4,11 @@
 
 - reading a tabular CSV dataset
 - cleaning and grouping records
-- generating a structured analysis report with Azure OpenAI text models
+- generating a structured analysis report with a configured text model API
 - turning the report into a slide-style image prompt
 - running a lightweight local dashboard to inspect workflow progress
 
-This repository does not include live cloud credentials. You must manually provide your own Azure OpenAI API keys, endpoints, and deployment names before the workflow can run.
+This repository does not include live cloud credentials. You must manually provide your own API keys, endpoints, and deployment names before the workflow can run.
 
 ## Project structure
 
@@ -33,7 +33,7 @@ This repository does not include live cloud credentials. You must manually provi
    pip install -r requirements.txt
    ```
 
-3. Copy `.env.example` to `.env` and manually fill in your own Azure OpenAI settings.
+3. Copy `.env.example` to `.env` and manually fill in your own API settings.
 4. Run the report stage:
 
    ```bash
@@ -52,22 +52,25 @@ This repository does not include live cloud credentials. You must manually provi
    python webapp.py
    ```
 
+## API Setup
+
+The project is configuration-driven. Future users only need to fill in `.env`.
+
+- `TEXT_MODEL_ENDPOINT` — text generation API base URL
+- `TEXT_MODEL_API_KEY` — text generation API key
+- `TEXT_MODEL_API_VERSION` — text API version
+- `TEXT_MODEL_DEPLOYMENT` — text model deployment name
+- `IMAGE_MODEL_ENDPOINT` — image generation API base URL
+- `IMAGE_MODEL_API_KEY` — image generation API key
+- `IMAGE_MODEL_API_VERSION` — image API version
+- `IMAGE_MODEL_DEPLOYMENT` — image model deployment name
+
+Once these values are set, no further code changes are required.
+
 ## Publish-safe notes
 
 - Real credentials are not included.
-- No live Azure resource names are required by default; you must configure your own `.env` values.
+- No live cloud resource names are required by default; you must configure your own `.env` values.
 - Runtime caches, logs, and generated outputs are ignored by Git.
 - The included CSV is treated as example project data; replace it if your real dataset is not public.
 
-## Recommended first commit
-
-After creating a new GitHub repository named `BTBworkflow`, initialize Git locally and push:
-
-```bash
-git init
-git add .
-git commit -m "Initial public release"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main
-```

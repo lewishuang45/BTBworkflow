@@ -5,7 +5,7 @@ from pathlib import Path
 import requests
 
 ROOT = Path(__file__).resolve().parent
-OUT = ROOT / "image2_probe.png"
+OUT = ROOT / "image_probe.png"
 
 
 def load_dotenv() -> None:
@@ -22,10 +22,10 @@ def load_dotenv() -> None:
 
 def main() -> None:
     load_dotenv()
-    endpoint = os.environ["AZURE_OPENAI_IMAGE_ENDPOINT"]
-    api_key = os.environ["AZURE_OPENAI_IMAGE_API_KEY"]
-    api_version = os.environ.get("AZURE_OPENAI_IMAGE_API_VERSION", "2025-04-01-preview")
-    deployment = os.environ["AZURE_OPENAI_IMAGE_DEPLOYMENT"]
+    endpoint = os.environ["IMAGE_MODEL_ENDPOINT"]
+    api_key = os.environ["IMAGE_MODEL_API_KEY"]
+    api_version = os.environ.get("IMAGE_MODEL_API_VERSION", "2025-04-01-preview")
+    deployment = os.environ["IMAGE_MODEL_DEPLOYMENT"]
 
     url = f"{endpoint.rstrip('/')}/openai/deployments/{deployment}/images/generations?api-version={api_version}"
     session = requests.Session()

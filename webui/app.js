@@ -16,7 +16,7 @@
   assistantMessage: document.getElementById('assistantMessage'),
   assistantSuggestion: document.getElementById('assistantSuggestion'),
   imagePreviewWrap: document.getElementById('imagePreviewWrap'),
-  probeImage2: document.getElementById('probeImage2'),
+  probeImage: document.getElementById('probeImage'),
   runReport: document.getElementById('runReport'),
   runImage: document.getElementById('runImage'),
   savePrompts: document.getElementById('savePrompts'),
@@ -129,9 +129,9 @@ async function triggerRun(path) {
   }
 }
 
-async function probeImage2() {
+async function probeImage() {
   try {
-    const payload = await postJson('/api/probe/image2');
+    const payload = await postJson('/api/probe/image');
     alert(payload.output || 'Probe completed');
     await refresh();
   } catch (error) {
@@ -271,7 +271,7 @@ async function refresh() {
 
     stateEls.runReport.disabled = running;
     stateEls.runImage.disabled = running || !data.has_report;
-    stateEls.probeImage2.disabled = running;
+    stateEls.probeImage.disabled = running;
     stateEls.savePrompts.disabled = running;
     stateEls.resetPrompts.disabled = running;
     stateEls.assistantSuggest.disabled = running;
@@ -296,7 +296,7 @@ async function refresh() {
   }
 }
 
-stateEls.probeImage2.addEventListener('click', probeImage2);
+stateEls.probeImage.addEventListener('click', probeImage);
 stateEls.runReport.addEventListener('click', () => triggerRun('/api/run/report'));
 stateEls.runImage.addEventListener('click', () => triggerRun('/api/run/image'));
 stateEls.savePrompts.addEventListener('click', savePrompts);
