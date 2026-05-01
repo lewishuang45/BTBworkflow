@@ -1,0 +1,17 @@
+{
+  "template_id": "retail_summary",
+  "name": "Retail Summary",
+  "description": "Summarize grouped retail-related metrics into an executive-ready analysis and visual brief.",
+  "report_system_prompt": "You are a retail data analyst. Always return strict JSON only.",
+  "outline_system_prompt": "You are a business presentation strategist. Always return strict JSON only.",
+  "report_prompt_keys": [
+    "prompt_1",
+    "prompt_2"
+  ],
+  "outline_prompt_keys": [
+    "prompt_3"
+  ],
+  "image_prompt_keys": [
+    "prompt_4"
+  ]
+}

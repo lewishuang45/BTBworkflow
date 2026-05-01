@@ -331,6 +331,8 @@ class Handler(BaseHTTPRequestHandler):
                 "template_files": list_template_files(),
                 "log": read_log_text(),
                 "report_preview": safe_json_load(OUTPUT_JSON, None) if OUTPUT_JSON.exists() else None,
+                "dataset_preview": (safe_json_load(OUTPUT_JSON, None) or {}).get("report", {}).get("dataset_preview") if OUTPUT_JSON.exists() else None,
+                "chart_config": (safe_json_load(OUTPUT_JSON, None) or {}).get("report", {}).get("chart_config") if OUTPUT_JSON.exists() else None,
                 "has_report": OUTPUT_JSON.exists(),
                 "has_boundary": OUTPUT_BOUNDARY.exists(),
                 "has_image": OUTPUT_IMAGE.exists(),

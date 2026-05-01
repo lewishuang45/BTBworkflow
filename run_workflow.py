@@ -219,6 +219,34 @@ def prepare_dataset() -> dict:
     if to_drop:
         cleaned = cleaned.drop(columns=to_drop)
     grouped = assign_groups(cleaned, ranking_column, id_column, group_labels)
+    metric_columns = [column for column in metric_columns if column in grouped.columns]
+
+    group_mean_rows = []
+    for group_name, frame in grouped.groupby("group"):
+        row = {"group": group_name}
+        for column in metric_columns:
+            row[column] = float(frame[column].mean())
+        group_mean_rows.append(row)
+
+    chart_config = {
+        "group_mean_chart": {
+            "type": "bar",
+            "x_key": "group",
+            "series": metric_columns,
+            "rows": group_mean_rows,
+        },
+        "ranking_distribution": {
+            "type": "box_summary",
+            "column": ranking_column,
+            "quantiles": {
+                "q25": float(grouped[ranking_column].quantile(0.25)),
+                "q50": float(grouped[ranking_column].quantile(0.5)),
+                "q75": float(grouped[ranking_column].quantile(0.75)),
+            },
+        },
+    }
+
+    preview_rows = grouped.head(10).to_dict(orient="records")
     summary = {
         "schema": schema,
         "template": load_template(),
@@ -231,6 +259,8 @@ def prepare_dataset() -> dict:
             "q50": float(grouped[ranking_column].quantile(0.5)),
             "q75": float(grouped[ranking_column].quantile(0.75)),
         },
+        "preview_rows": preview_rows,
+        "chart_config": chart_config,
         "records": grouped.to_dict(orient="records"),
     }
     return round_nested(summary)

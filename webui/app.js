@@ -11,6 +11,8 @@
   boundaryFlag: document.getElementById('boundaryFlag'),
   imageFlag: document.getElementById('imageFlag'),
   reportPreview: document.getElementById('reportPreview'),
+  datasetPreview: document.getElementById('datasetPreview'),
+  chartConfigPreview: document.getElementById('chartConfigPreview'),
   steps: document.getElementById('steps'),
   prompts: document.getElementById('prompts'),
   datasetSelect: document.getElementById('datasetSelect'),
@@ -302,6 +304,8 @@ async function refresh() {
     stateEls.boundaryFlag.textContent = data.has_boundary ? 'ready' : 'missing';
     stateEls.imageFlag.textContent = data.has_image ? 'ready' : 'missing';
     stateEls.reportPreview.textContent = data.report_preview ? JSON.stringify(data.report_preview, null, 2) : 'No report generated yet.';
+    stateEls.datasetPreview.textContent = data.dataset_preview ? JSON.stringify(data.dataset_preview, null, 2) : 'No dataset preview available yet.';
+    stateEls.chartConfigPreview.textContent = data.chart_config ? JSON.stringify(data.chart_config, null, 2) : 'No chart config available yet.';
 
     if (data.assistant?.last_request && !stateEls.assistantMessage.value) {
       stateEls.assistantMessage.value = data.assistant.last_request;
