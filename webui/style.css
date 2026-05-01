@@ -87,6 +87,27 @@ button:disabled {
   gap: 16px;
 }
 
+.mapping-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mapping-grid label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.mapping-grid input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
 .config-toolbar {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -319,6 +340,42 @@ button:disabled {
   gap: 16px;
 }
 
+.chart-canvas {
+  width: 100%;
+  height: 360px;
+  margin-top: 16px;
+}
+
+.template-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.template-card {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.structured-output {
+  display: grid;
+  gap: 10px;
+}
+
+.structured-item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  line-height: 1.6;
+}
+
+.structured-item.muted {
+  color: #64748b;
+}
+
 .chart-card {
   background: #f8fafc;
   border-radius: 14px;
@@ -382,7 +439,8 @@ button:disabled {
   .bottom-grid,
   .assistant-grid,
   .config-toolbar,
-  .config-grid {
+  .config-grid,
+  .mapping-grid {
     grid-template-columns: 1fr;
     display: grid;
   }

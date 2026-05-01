@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Workflow Dashboard</title>
   <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -80,6 +81,12 @@
         <div class="config-grid">
           <div>
             <h3>Dataset Schema</h3>
+            <div class="mapping-grid">
+              <label><span>Ranking Column</span><input id="rankingColumn" type="text"></label>
+              <label><span>Metric Columns</span><input id="metricColumns" type="text" placeholder="comma separated"></label>
+              <label><span>Drop Columns</span><input id="dropColumns" type="text" placeholder="comma separated"></label>
+              <label><span>Group Labels</span><input id="groupLabels" type="text" placeholder="comma separated"></label>
+            </div>
             <textarea id="schemaEditor" class="assistant-box" placeholder="dataset_schema.json"></textarea>
           </div>
           <div>
@@ -87,6 +94,13 @@
             <textarea id="templateEditor" class="assistant-box" placeholder="analysis_template.json"></textarea>
           </div>
         </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-head">
+          <h2>Templates</h2>
+        </div>
+        <div id="templateCards" class="template-cards"></div>
       </div>
 
       <div class="panel">
@@ -118,6 +132,18 @@
 
     <section class="grid bottom-grid">
       <div class="panel">
+        <h2>Structured Findings</h2>
+        <div id="structuredFindings" class="structured-output"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Structured Recommendations</h2>
+        <div id="structuredRecommendations" class="structured-output"></div>
+      </div>
+    </section>
+
+    <section class="grid bottom-grid">
+      <div class="panel">
         <h2>Report Preview</h2>
         <pre id="reportPreview" class="code-box"></pre>
       </div>
@@ -143,6 +169,7 @@
     <section class="panel">
       <h2>Chart Preview</h2>
       <div id="chartPreview" class="chart-preview empty">No chart preview yet</div>
+      <div id="chartCanvas" class="chart-canvas"></div>
     </section>
   </div>
   <script src="/app.js"></script>

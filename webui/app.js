@@ -14,14 +14,22 @@
   datasetPreview: document.getElementById('datasetPreview'),
   chartConfigPreview: document.getElementById('chartConfigPreview'),
   chartPreview: document.getElementById('chartPreview'),
+  chartCanvas: document.getElementById('chartCanvas'),
   steps: document.getElementById('steps'),
   prompts: document.getElementById('prompts'),
   datasetSelect: document.getElementById('datasetSelect'),
   templateSelect: document.getElementById('templateSelect'),
   schemaEditor: document.getElementById('schemaEditor'),
   templateEditor: document.getElementById('templateEditor'),
+  rankingColumn: document.getElementById('rankingColumn'),
+  metricColumns: document.getElementById('metricColumns'),
+  dropColumns: document.getElementById('dropColumns'),
+  groupLabels: document.getElementById('groupLabels'),
+  templateCards: document.getElementById('templateCards'),
   assistantMessage: document.getElementById('assistantMessage'),
   assistantSuggestion: document.getElementById('assistantSuggestion'),
+  structuredFindings: document.getElementById('structuredFindings'),
+  structuredRecommendations: document.getElementById('structuredRecommendations'),
   imagePreviewWrap: document.getElementById('imagePreviewWrap'),
   probeImage: document.getElementById('probeImage'),
   exportHtml: document.getElementById('exportHtml'),
@@ -41,6 +49,7 @@
 let promptDrafts = {};
 let lastAssistantSuggestion = null;
 let refreshBusy = false;
+let chartInstance = null;
 
 function statusClass(status) {
   return `status-${status || 'pending'}`;
@@ -78,6 +87,43 @@ function renderChartPreview(chartConfig) {
     }).join('');
     return `<div class="chart-card"><h3>${row.group}</h3>${bars}</div>`;
   }).join('');
+}
+
+function renderTemplateCards(catalog) {
+  const items = Array.isArray(catalog) ? catalog : [];
+  stateEls.templateCards.innerHTML = items.map((item) => `
+    <div class="template-card">
+      <h3>${item.name}</h3>
+      <p>${item.description || ''}</p>
+      <small><strong>File:</strong> ${item.file}</small>
+      <small><strong>Expected fields:</strong> ${(item.expected_fields || []).join(', ') || 'n/a'}</small>
+    </div>
+  `).join('');
+}
+
+function renderStructuredList(target, values, emptyText) {
+  const items = Array.isArray(values) ? values : [];
+  target.innerHTML = items.length ? items.map((item) => `<div class="structured-item">${item}</div>`).join('') : `<div class="structured-item muted">${emptyText}</div>`;
+}
+
+function renderEChart(chartConfig) {
+  const chart = chartConfig?.group_mean_chart;
+  if (!window.echarts || !chart || !stateEls.chartCanvas) return;
+  const rows = chart.rows || [];
+  const series = chart.series || [];
+  const categories = rows.map((row) => row.group);
+  stateEls.chartCanvas.style.display = rows.length ? 'block' : 'none';
+  if (!rows.length) return;
+  if (!chartInstance) {
+    chartInstance = window.echarts.init(stateEls.chartCanvas);
+  }
+  chartInstance.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: series },
+    xAxis: { type: 'category', data: categories },
+    yAxis: { type: 'value' },
+    series: series.map((key) => ({ name: key, type: 'bar', data: rows.map((row) => row[key]) })),
+  });
 }
 
 function renderSteps(steps, activeStep, activeSubstep) {
@@ -201,6 +247,10 @@ async function savePrompts() {
 async function saveSchema() {
   try {
     const schema = JSON.parse(stateEls.schemaEditor.value || '{}');
+    schema.ranking_column = stateEls.rankingColumn.value.trim() || schema.ranking_column;
+    schema.metric_columns = (stateEls.metricColumns.value || '').split(',').map((s) => s.trim()).filter(Boolean) || schema.metric_columns;
+    schema.drop_columns = (stateEls.dropColumns.value || '').split(',').map((s) => s.trim()).filter(Boolean) || schema.drop_columns;
+    schema.group_labels = (stateEls.groupLabels.value || '').split(',').map((s) => s.trim()).filter(Boolean) || schema.group_labels;
     if (stateEls.datasetSelect.value) {
       schema.input_file = stateEls.datasetSelect.value;
     }
@@ -367,14 +417,20 @@ async function refresh() {
     stateEls.datasetPreview.textContent = data.dataset_preview ? JSON.stringify(data.dataset_preview, null, 2) : 'No dataset preview available yet.';
     stateEls.chartConfigPreview.textContent = data.chart_config ? JSON.stringify(data.chart_config, null, 2) : 'No chart config available yet.';
     renderChartPreview(data.chart_config);
+    renderEChart(data.chart_config);
 
     if (data.assistant?.last_request && !stateEls.assistantMessage.value) {
       stateEls.assistantMessage.value = data.assistant.last_request;
     }
     renderOptions(stateEls.datasetSelect, data.dataset_files, data.schema?.input_file);
     renderOptions(stateEls.templateSelect, data.template_files, 'analysis_template.json');
+    renderTemplateCards(data.template_catalog);
     if (data.schema && document.activeElement !== stateEls.schemaEditor) {
       stateEls.schemaEditor.value = JSON.stringify(data.schema, null, 2);
+      stateEls.rankingColumn.value = data.schema.ranking_column || '';
+      stateEls.metricColumns.value = (data.schema.metric_columns || []).join(', ');
+      stateEls.dropColumns.value = (data.schema.drop_columns || []).join(', ');
+      stateEls.groupLabels.value = (data.schema.group_labels || []).join(', ');
     }
     if (data.template && document.activeElement !== stateEls.templateEditor) {
       stateEls.templateEditor.value = JSON.stringify(data.template, null, 2);
@@ -383,6 +439,9 @@ async function refresh() {
       lastAssistantSuggestion = data.assistant.last_suggestion;
       stateEls.assistantSuggestion.textContent = JSON.stringify(data.assistant.last_suggestion, null, 2);
     }
+    const insightStarter = (data.report_preview || {}).report?.insight_starter || {};
+    renderStructuredList(stateEls.structuredFindings, insightStarter.findings, 'No findings yet.');
+    renderStructuredList(stateEls.structuredRecommendations, insightStarter.recommendations, 'No recommendations yet.');
 
     stateEls.runReport.disabled = running;
     stateEls.runImage.disabled = running || !data.has_report;
