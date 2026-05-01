@@ -100,6 +100,7 @@ You can now organize project inputs more like a reusable analytics workspace.
 - Put reusable template files in `templates/`
 - The dashboard discovers these files automatically
 - Dataset preparation now also outputs `preview_rows` and `chart_config` for downstream UI use
+- You can export the latest report to a static HTML file from the dashboard
 
 ## Publish-safe notes
 

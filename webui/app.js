@@ -24,6 +24,7 @@
   assistantSuggestion: document.getElementById('assistantSuggestion'),
   imagePreviewWrap: document.getElementById('imagePreviewWrap'),
   probeImage: document.getElementById('probeImage'),
+  exportHtml: document.getElementById('exportHtml'),
   runReport: document.getElementById('runReport'),
   runImage: document.getElementById('runImage'),
   savePrompts: document.getElementById('savePrompts'),
@@ -248,6 +249,18 @@ async function uploadDataset() {
   input.click();
 }
 
+async function exportHtml() {
+  try {
+    const payload = await postJson('/api/export/html');
+    if (payload.html_report_url) {
+      window.open(payload.html_report_url, '_blank');
+    }
+  } catch (error) {
+    alert(error.message);
+    showPageError(error.message);
+  }
+}
+
 async function resetPrompts() {
   try {
     const payload = await postJson('/api/prompts/reset');
@@ -374,6 +387,7 @@ async function refresh() {
     stateEls.runReport.disabled = running;
     stateEls.runImage.disabled = running || !data.has_report;
     stateEls.probeImage.disabled = running;
+    stateEls.exportHtml.disabled = running || !data.has_report;
     stateEls.savePrompts.disabled = running;
     stateEls.saveSchema.disabled = running;
     stateEls.saveTemplate.disabled = running;
@@ -402,6 +416,7 @@ async function refresh() {
 }
 
 stateEls.probeImage.addEventListener('click', probeImage);
+stateEls.exportHtml.addEventListener('click', exportHtml);
 stateEls.runReport.addEventListener('click', () => triggerRun('/api/run/report'));
 stateEls.runImage.addEventListener('click', () => triggerRun('/api/run/image'));
 stateEls.savePrompts.addEventListener('click', savePrompts);

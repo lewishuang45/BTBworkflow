@@ -16,6 +16,7 @@ LOG_FILE = ROOT / "workflow.log"
 OUTPUT_JSON = ROOT / "final_output.json"
 OUTPUT_IMAGE = ROOT / "ppt_mockup.png"
 OUTPUT_BOUNDARY = ROOT / "image_soft_boundary.json"
+OUTPUT_HTML = ROOT / "report_output.html"
 PROMPTS_FILE = ROOT / "workflow_prompts.json"
 LABELS_FILE = ROOT / "workflow_labels.json"
 ASSISTANT_FILE = ROOT / "workflow_assistant_state.json"
@@ -160,6 +161,46 @@ def save_uploaded_dataset(file_name: str, content_base64: str):
     target = DATASETS_DIR / safe_name
     target.write_bytes(base64.b64decode(content_base64))
     return f"datasets/{safe_name}"
+
+
+def render_report_html(report_payload):
+    report_text = json.dumps(report_payload, ensure_ascii=False, indent=2)
+    chart_config = ((report_payload or {}).get("report") or {}).get("chart_config")
+    chart_text = json.dumps(chart_config, ensure_ascii=False, indent=2) if chart_config else "No chart config"
+    html = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTBworkflow Report</title>
+  <style>
+    body {{ font-family: Inter, Arial, sans-serif; background:#f8fafc; color:#0f172a; margin:0; padding:24px; }}
+    .wrap {{ max-width: 1200px; margin: 0 auto; }}
+    .card {{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 8px 24px rgba(15,23,42,.08); margin-bottom:16px; }}
+    pre {{ white-space: pre-wrap; word-break: break-word; background:#0f172a; color:#e2e8f0; padding:16px; border-radius:12px; overflow:auto; }}
+    h1,h2 {{ margin-top:0; }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>BTBworkflow Report Export</h1>
+      <p>Static HTML export generated from the latest workflow output.</p>
+    </div>
+    <div class="card">
+      <h2>Chart Config</h2>
+      <pre>{chart_text}</pre>
+    </div>
+    <div class="card">
+      <h2>Full Report JSON</h2>
+      <pre>{report_text}</pre>
+    </div>
+  </div>
+</body>
+</html>
+"""
+    OUTPUT_HTML.write_text(html, encoding="utf-8")
+    return OUTPUT_HTML
 
 
 def default_steps():
@@ -336,6 +377,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_file(OUTPUT_IMAGE, "image/png")
             self.send_error(404)
             return
+        if path == "/report-output":
+            if OUTPUT_HTML.exists():
+                return self._send_file(OUTPUT_HTML, "text/html; charset=utf-8")
+            self.send_error(404)
+            return
         if path == "/preview-probe":
             if PROBE_FILE.exists():
                 return self._send_file(PROBE_FILE, "image/png")
@@ -357,8 +403,10 @@ class Handler(BaseHTTPRequestHandler):
                 "has_boundary": OUTPUT_BOUNDARY.exists(),
                 "has_image": OUTPUT_IMAGE.exists(),
                 "has_probe": PROBE_FILE.exists(),
+                "has_html_report": OUTPUT_HTML.exists(),
                 "image_url": "/preview-image" if OUTPUT_IMAGE.exists() else None,
                 "probe_url": "/preview-probe" if PROBE_FILE.exists() else None,
+                "html_report_url": "/report-output" if OUTPUT_HTML.exists() else None,
             })
         self.send_error(404)
 
@@ -400,6 +448,12 @@ class Handler(BaseHTTPRequestHandler):
             state["artifacts"]["input_csv"] = stored_file
             save_state(state)
             return self._json({"ok": True, "stored_file": stored_file, "schema": schema})
+        if self.path == "/api/export/html":
+            if not OUTPUT_JSON.exists():
+                return self._json({"ok": False, "message": "No report output available to export"}, 400)
+            payload = safe_json_load(OUTPUT_JSON, None)
+            render_report_html(payload)
+            return self._json({"ok": True, "html_report_url": "/report-output"})
         if self.path == "/api/prompts/reset":
             saved = save_prompts(DEFAULT_PROMPTS)
             state = default_state()
