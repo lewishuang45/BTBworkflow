@@ -13,6 +13,8 @@
   reportPreview: document.getElementById('reportPreview'),
   steps: document.getElementById('steps'),
   prompts: document.getElementById('prompts'),
+  datasetSelect: document.getElementById('datasetSelect'),
+  templateSelect: document.getElementById('templateSelect'),
   schemaEditor: document.getElementById('schemaEditor'),
   templateEditor: document.getElementById('templateEditor'),
   assistantMessage: document.getElementById('assistantMessage'),
@@ -41,6 +43,15 @@ function statusClass(status) {
 
 function showPageError(message) {
   stateEls.message.textContent = message;
+}
+
+function renderOptions(selectEl, items, selectedValue) {
+  if (!selectEl) return;
+  const values = Array.isArray(items) ? items : [];
+  selectEl.innerHTML = values.map((value) => `<option value="${value}">${value}</option>`).join('');
+  if (selectedValue && values.includes(selectedValue)) {
+    selectEl.value = selectedValue;
+  }
 }
 
 function renderSteps(steps, activeStep, activeSubstep) {
@@ -164,6 +175,9 @@ async function savePrompts() {
 async function saveSchema() {
   try {
     const schema = JSON.parse(stateEls.schemaEditor.value || '{}');
+    if (stateEls.datasetSelect.value) {
+      schema.input_file = stateEls.datasetSelect.value;
+    }
     await postJson('/api/schema', { schema });
     await refresh();
     alert('Schema saved.');
@@ -292,6 +306,8 @@ async function refresh() {
     if (data.assistant?.last_request && !stateEls.assistantMessage.value) {
       stateEls.assistantMessage.value = data.assistant.last_request;
     }
+    renderOptions(stateEls.datasetSelect, data.dataset_files, data.schema?.input_file);
+    renderOptions(stateEls.templateSelect, data.template_files, 'analysis_template.json');
     if (data.schema && document.activeElement !== stateEls.schemaEditor) {
       stateEls.schemaEditor.value = JSON.stringify(data.schema, null, 2);
     }
