@@ -19,6 +19,7 @@ This repository does not include live cloud credentials. You must manually provi
 - `workflow_prompts.json` — editable prompt configuration
 - `workflow_labels.json` — dashboard labels and workflow definitions
 - `dataset_schema.json` — schema mapping for reusable dataset preparation
+- `analysis_template.json` — reusable analysis template metadata
 - `sampleDATA.csv` — example input dataset
 - `probe_image2.py` — minimal image generation connectivity probe
 - `run_workflow.bat` / `run_workflow.ps1` — workflow launchers
@@ -79,6 +80,17 @@ The project now supports schema-driven preparation via `dataset_schema.json`.
 - `metric_columns` — columns required for analysis
 - `drop_columns` — columns removed during cleaning
 - `group_labels` — labels assigned to top / middle / bottom segments
+
+## Analysis Template
+
+The project also supports a lightweight template descriptor via `analysis_template.json`.
+
+- `template_id` — unique template identifier
+- `name` — user-facing template name
+- `description` — what the template is for
+- prompt key lists — which prompt blocks belong to report / outline / image generation
+
+This is the next step toward a multi-template analytics product.
 
 ## Publish-safe notes
 

@@ -21,6 +21,7 @@ IMAGE_BOUNDARY_FILE = ROOT / "image_soft_boundary.json"
 LABELS_FILE = ROOT / "workflow_labels.json"
 STATE_FILE = ROOT / "workflow_state.json"
 SCHEMA_FILE = ROOT / "dataset_schema.json"
+TEMPLATE_FILE = ROOT / "analysis_template.json"
 
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -149,6 +150,25 @@ def load_schema() -> dict:
     return merged
 
 
+def load_template() -> dict:
+    fallback = {
+        "template_id": "leaderboard_comparison",
+        "name": "Leaderboard Comparison",
+        "description": "Analyze ranked performance groups and generate a structured report plus presentation assets.",
+    }
+    if not TEMPLATE_FILE.exists():
+        return fallback
+    try:
+        payload = json.loads(TEMPLATE_FILE.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return fallback
+    if not isinstance(payload, dict):
+        return fallback
+    merged = fallback.copy()
+    merged.update(payload)
+    return merged
+
+
 def assign_groups(df: pd.DataFrame, ranking_column: str, id_column: str, group_labels: list[str]) -> pd.DataFrame:
     ranked = df.sort_values([ranking_column, id_column], ascending=[False, True]).reset_index(drop=True)
     total = len(ranked)
@@ -196,6 +216,7 @@ def prepare_dataset() -> dict:
     grouped = assign_groups(cleaned, ranking_column, id_column, group_labels)
     summary = {
         "schema": schema,
+        "template": load_template(),
         "row_count": int(len(grouped)),
         "columns": grouped.columns.tolist(),
         "group_counts": grouped["group"].value_counts().to_dict(),

@@ -1,0 +1,18 @@
+{
+  "template_id": "leaderboard_comparison",
+  "name": "Leaderboard Comparison",
+  "description": "Analyze ranked performance groups and generate a structured report plus presentation assets.",
+  "report_system_prompt": "You are a rigorous data analyst. Always return strict JSON only.",
+  "outline_system_prompt": "You are a presentation strategist. Always return strict JSON only.",
+  "image_system_goal": "Create a single-slide executive visual summary based only on the supplied report content.",
+  "report_prompt_keys": [
+    "prompt_1",
+    "prompt_2"
+  ],
+  "outline_prompt_keys": [
+    "prompt_3"
+  ],
+  "image_prompt_keys": [
+    "prompt_4"
+  ]
+}

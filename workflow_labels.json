@@ -3,7 +3,7 @@
   "steps": [
     {
       "id": "load_env",
-      "title": "Load Azure Configuration",
+      "title": "Load API Configuration",
       "detail": "Read .env and prepare model runtime settings.",
       "stages": [
         "all",
@@ -27,7 +27,7 @@
     {
       "id": "prepare_data",
       "title": "Prepare Dataset",
-      "detail": "Read CSV, add ID, drop Team and AugT, and split groups by Individual.",
+      "detail": "Read the configured dataset, apply schema rules, and split ranked groups.",
       "stages": [
         "all",
         "report"
@@ -39,7 +39,7 @@
       "substeps": [
         {
           "id": "read_csv",
-          "label": "Read sampleDATA.csv"
+          "label": "Read configured input file"
         },
         {
           "id": "add_id",
@@ -47,7 +47,7 @@
         },
         {
           "id": "drop_columns",
-          "label": "Remove Team and AugT"
+          "label": "Drop configured columns"
         },
         {
           "id": "split_groups",
@@ -58,7 +58,7 @@
     {
       "id": "analysis_report",
       "title": "Generate Analysis Report",
-      "detail": "Call GPT-5.4 to generate a structured JSON analysis report.",
+      "detail": "Call the configured text model to generate a structured JSON analysis report.",
       "stages": [
         "all",
         "report"
@@ -91,7 +91,7 @@
       "substeps": [
         {
           "id": "send_analysis_prompt",
-          "label": "Send analysis prompt to GPT-5.4"
+          "label": "Send analysis prompt to text model"
         },
         {
           "id": "parse_analysis_json",
