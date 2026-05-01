@@ -6,7 +6,7 @@ This project provides a local workflow for:
 - preparing grouped analysis data
 - generating a JSON analysis report with Azure OpenAI text models
 - running a local dashboard for workflow control and progress tracking
-- generating a final slide-style image with Azure `image2`
+- generating a final slide-style image with a configured image model deployment
 
 ## Main Entry Points
 - Full workflow: `run_workflow.bat`
@@ -22,7 +22,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env`, then set:
+Copy `.env.example` to `.env`, then manually set your own credentials and deployment names:
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_API_KEY`
 - `AZURE_OPENAI_API_VERSION`
@@ -57,3 +57,4 @@ python probe_image2.py
 - Keep `.env` local only.
 - Do not commit generated outputs or runtime cache files.
 - Replace `sampleDATA.csv` if your actual data is not public.
+- This project will not run until you manually add valid Azure OpenAI credentials and deployment names to `.env`.

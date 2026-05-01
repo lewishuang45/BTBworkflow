@@ -125,9 +125,11 @@ def request_suggestion(message: str, prompts: dict, labels: dict) -> dict:
     endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
     api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2025-04-01-preview")
-    deployment = os.getenv("AZURE_OPENAI_TEXT_DEPLOYMENT", "gpt54-workflow")
+    deployment = os.getenv("AZURE_OPENAI_TEXT_DEPLOYMENT")
     if not endpoint or not api_key:
         raise RuntimeError("Azure OpenAI credentials are not configured (.env).")
+    if not deployment:
+        raise RuntimeError("Azure OpenAI text deployment is not configured (.env).")
 
     user_payload = {
         "user_request": message,

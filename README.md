@@ -8,6 +8,8 @@
 - turning the report into a slide-style image prompt
 - running a lightweight local dashboard to inspect workflow progress
 
+This repository does not include live cloud credentials. You must manually provide your own Azure OpenAI API keys, endpoints, and deployment names before the workflow can run.
+
 ## Project structure
 
 - `run_workflow.py` — main workflow entrypoint
@@ -31,7 +33,7 @@
    pip install -r requirements.txt
    ```
 
-3. Copy `.env.example` to `.env` and fill in your Azure OpenAI settings.
+3. Copy `.env.example` to `.env` and manually fill in your own Azure OpenAI settings.
 4. Run the report stage:
 
    ```bash
@@ -53,6 +55,7 @@
 ## Publish-safe notes
 
 - Real credentials are not included.
+- No live Azure resource names are required by default; you must configure your own `.env` values.
 - Runtime caches, logs, and generated outputs are ignored by Git.
 - The included CSV is treated as example project data; replace it if your real dataset is not public.
 
@@ -68,4 +71,3 @@ git branch -M main
 git remote add origin <your-github-repo-url>
 git push -u origin main
 ```
-

@@ -130,9 +130,6 @@
           "wrap": {
             "status": "report_ready",
             "input_file": "sampleDATA.csv",
-            "text_deployment": {
-              "$env": "AZURE_OPENAI_TEXT_DEPLOYMENT"
-            },
             "report": {
               "$output": true
             },
@@ -210,7 +207,7 @@
     {
       "id": "image_render",
       "title": "Render Final Image",
-      "detail": "Call Azure image2 to generate the final slide-style image.",
+      "detail": "Call the configured image model to generate the final slide-style image.",
       "stages": [
         "all",
         "image"
@@ -223,17 +220,14 @@
           "file": "final_output.json",
           "patch": {
             "status": "success",
-            "image_mode": "azure_image2",
-            "image_deployment": {
-              "$env": "AZURE_OPENAI_IMAGE_DEPLOYMENT"
-            }
+            "image_mode": "configured_image_model"
           }
         }
       },
       "substeps": [
         {
           "id": "send_image_prompt",
-          "label": "Send image prompt to image2"
+          "label": "Send image prompt to the image model"
         },
         {
           "id": "save_image",

@@ -579,7 +579,7 @@ def action_load_env(action: dict, ctx: dict) -> None:
     ctx["text_endpoint"] = require_env("AZURE_OPENAI_ENDPOINT")
     ctx["text_key"] = require_env("AZURE_OPENAI_API_KEY")
     ctx["text_api_version"] = os.getenv("AZURE_OPENAI_API_VERSION", "2025-04-01-preview")
-    ctx["text_deployment"] = os.getenv("AZURE_OPENAI_TEXT_DEPLOYMENT", "gpt54-workflow")
+    ctx["text_deployment"] = require_env("AZURE_OPENAI_TEXT_DEPLOYMENT")
     ctx["image_endpoint"] = os.getenv("AZURE_OPENAI_IMAGE_ENDPOINT", ctx["text_endpoint"])
     ctx["image_key"] = os.getenv("AZURE_OPENAI_IMAGE_API_KEY", ctx["text_key"])
     ctx["image_api_version"] = os.getenv("AZURE_OPENAI_IMAGE_API_VERSION", ctx["text_api_version"])
