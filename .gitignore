@@ -16,6 +16,10 @@ image_soft_boundary.json
 # Generated media
 ppt_mockup.png
 image2_probe.png
+image_probe.png
+report_output.html
+datasets/*.csv
+datasets/*.xlsx
 
 # OS / editor
 .DS_Store

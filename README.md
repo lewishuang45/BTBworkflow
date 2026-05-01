@@ -108,3 +108,13 @@ You can now organize project inputs more like a reusable analytics workspace.
 - No live cloud resource names are required by default; you must configure your own `.env` values.
 - Runtime caches, logs, and generated outputs are ignored by Git.
 - The included CSV is treated as example project data; replace it if your real dataset is not public.
+- Files created through dashboard uploads or report export are considered local runtime artifacts and are not intended to stay in version control.
+
+## Release Notes
+
+This repository is intentionally kept as a clean product starter:
+
+- example source files are included
+- generated runtime outputs are excluded
+- uploaded datasets belong in local development, not in Git history
+- exported HTML reports are local deliverables, not source assets

@@ -7,6 +7,6 @@ Before pushing `BTBworkflow` to GitHub, confirm:
 - Generated outputs and runtime state files are excluded by `.gitignore`.
 - Example data is safe to publish.
 - Internal notes, logs, and one-off debug artifacts are removed.
+- Locally uploaded datasets and exported HTML reports are not tracked.
 
 If the repository was previously committed with real secrets, rotate those secrets before publishing.
-
