@@ -1,0 +1,245 @@
+{
+  "section_title": "Workflow Progress",
+  "steps": [
+    {
+      "id": "load_env",
+      "title": "Load Azure Configuration",
+      "detail": "Read .env and prepare model runtime settings.",
+      "stages": [
+        "all",
+        "report",
+        "image"
+      ],
+      "action": {
+        "type": "load_env"
+      },
+      "substeps": [
+        {
+          "id": "read_env",
+          "label": "Read .env file"
+        },
+        {
+          "id": "prepare_runtime",
+          "label": "Prepare runtime environment variables"
+        }
+      ]
+    },
+    {
+      "id": "prepare_data",
+      "title": "Prepare Dataset",
+      "detail": "Read CSV, add ID, drop Team and AugT, and split groups by Individual.",
+      "stages": [
+        "all",
+        "report"
+      ],
+      "action": {
+        "type": "prepare_dataset",
+        "output_to": "data_summary"
+      },
+      "substeps": [
+        {
+          "id": "read_csv",
+          "label": "Read sampleDATA.csv"
+        },
+        {
+          "id": "add_id",
+          "label": "Add natural-order ID"
+        },
+        {
+          "id": "drop_columns",
+          "label": "Remove Team and AugT"
+        },
+        {
+          "id": "split_groups",
+          "label": "Split into top / average / bottom"
+        }
+      ]
+    },
+    {
+      "id": "analysis_report",
+      "title": "Generate Analysis Report",
+      "detail": "Call GPT-5.4 to generate a structured JSON analysis report.",
+      "stages": [
+        "all",
+        "report"
+      ],
+      "action": {
+        "type": "llm_text",
+        "system": "You are a rigorous data analyst. Always return strict JSON only.",
+        "user_parts": [
+          {
+            "prompt": "prompt_1"
+          },
+          {
+            "text": "\n\n请基于以上数据准备要求和以下数据摘要，完成分析。\n\n数据摘要如下：\n"
+          },
+          {
+            "ctx": "data_summary",
+            "format": "json"
+          },
+          {
+            "text": "\n\n"
+          },
+          {
+            "prompt": "prompt_2"
+          }
+        ],
+        "temperature": 0.2,
+        "response_format": "json_object",
+        "output_to": "analysis_report"
+      },
+      "substeps": [
+        {
+          "id": "send_analysis_prompt",
+          "label": "Send analysis prompt to GPT-5.4"
+        },
+        {
+          "id": "parse_analysis_json",
+          "label": "Parse analysis JSON"
+        }
+      ]
+    },
+    {
+      "id": "ppt_outline",
+      "title": "Generate PPT Outline",
+      "detail": "Build a one-slide PPT outline and chart-ready data from the report.",
+      "stages": [
+        "all",
+        "report"
+      ],
+      "action": {
+        "type": "llm_text",
+        "system": "You are a presentation strategist. Always return strict JSON only.",
+        "user_parts": [
+          {
+            "prompt": "prompt_3"
+          },
+          {
+            "text": "\n\n必须保持当前报告主题，不得改写成其他主题。如果当前分析主题是围绕 Top 组在四轮中的表现、稳定性、最终均分与重合率，则 PPT 提纲必须继续围绕该主题。输出中必须适合生成：折线图、对比图、数据表、结论区、关键指标区。\n\n分析报告如下：\n"
+          },
+          {
+            "ctx": "analysis_report",
+            "format": "json"
+          }
+        ],
+        "temperature": 0.3,
+        "response_format": "json_object",
+        "output_to": "outline_report",
+        "save_to": {
+          "file": "final_output.json",
+          "wrap": {
+            "status": "report_ready",
+            "input_file": "sampleDATA.csv",
+            "text_deployment": {
+              "$env": "AZURE_OPENAI_TEXT_DEPLOYMENT"
+            },
+            "report": {
+              "$output": true
+            },
+            "image_file": "ppt_mockup.png"
+          }
+        }
+      },
+      "substeps": [
+        {
+          "id": "send_outline_prompt",
+          "label": "Send outline prompt to GPT-5.4"
+        },
+        {
+          "id": "save_report_json",
+          "label": "Save final_output.json"
+        }
+      ]
+    },
+    {
+      "id": "image_boundary",
+      "title": "Extract Image Data Boundary",
+      "detail": "Ask GPT-5.4 to extract report-specific soft boundaries for image generation.",
+      "stages": [
+        "all",
+        "report",
+        "image"
+      ],
+      "action": {
+        "type": "build_image_boundary",
+        "input_from": "outline_report",
+        "fallback_file": "final_output.json",
+        "output_to": "image_soft_boundary",
+        "output_file": "image_soft_boundary.json"
+      },
+      "substeps": [
+        {
+          "id": "read_report_for_boundary",
+          "label": "Read current report JSON"
+        },
+        {
+          "id": "extract_boundary_rules",
+          "label": "Extract image data boundary with GPT-5.4"
+        },
+        {
+          "id": "save_boundary_json",
+          "label": "Save image_soft_boundary.json"
+        }
+      ]
+    },
+    {
+      "id": "image_brief",
+      "title": "Build Image Prompt",
+      "detail": "Convert the PPT outline and soft boundary into a concise image-model prompt.",
+      "stages": [
+        "all",
+        "image"
+      ],
+      "action": {
+        "type": "build_image_prompts",
+        "input_from": "outline_report",
+        "fallback_file": "final_output.json",
+        "output_to": "image_prompts"
+      },
+      "substeps": [
+        {
+          "id": "read_report_json",
+          "label": "Read final_output.json"
+        },
+        {
+          "id": "build_markdown_brief",
+          "label": "Build image prompt"
+        }
+      ]
+    },
+    {
+      "id": "image_render",
+      "title": "Render Final Image",
+      "detail": "Call Azure image2 to generate the final slide-style image.",
+      "stages": [
+        "all",
+        "image"
+      ],
+      "action": {
+        "type": "llm_image",
+        "input_from": "image_prompts",
+        "output_file": "ppt_mockup.png",
+        "patch_after": {
+          "file": "final_output.json",
+          "patch": {
+            "status": "success",
+            "image_mode": "azure_image2",
+            "image_deployment": {
+              "$env": "AZURE_OPENAI_IMAGE_DEPLOYMENT"
+            }
+          }
+        }
+      },
+      "substeps": [
+        {
+          "id": "send_image_prompt",
+          "label": "Send image prompt to image2"
+        },
+        {
+          "id": "save_image",
+          "label": "Save ppt_mockup.png"
+        }
+      ]
+    }
+  ]
+}

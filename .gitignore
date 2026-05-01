@@ -1,0 +1,24 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime artifacts
+workflow.log
+image_stage_debug.log
+final_output.json
+workflow_state.json
+workflow_assistant_state.json
+workflow_assistant_history.json
+image_soft_boundary.json
+
+# Generated media
+ppt_mockup.png
+image2_probe.png
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+

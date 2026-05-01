@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero panel">
+      <div>
+        <p class="eyebrow">Local Workflow Control</p>
+        <h1>SampleDATA Workflow Dashboard</h1>
+        <p class="sub">Track the full workflow from data preparation to report generation, PPT outlining, and image rendering. Includes progress steps, prompt editing, assistant suggestions, and previews.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="probeImage2">Test image2</button>
+        <button id="runReport">Run Report</button>
+        <button id="runImage" class="secondary">Run Image</button>
+      </div>
+    </header>
+
+    <section class="grid top-grid">
+      <div class="panel summary-card">
+        <h2>Run Summary</h2>
+        <div class="meta-list">
+          <div><span>Status</span><strong id="status">-</strong></div>
+          <div><span>Mode</span><strong id="mode">-</strong></div>
+          <div><span>Message</span><strong id="message">-</strong></div>
+          <div><span>Started</span><strong id="started">-</strong></div>
+          <div><span>Updated</span><strong id="updated">-</strong></div>
+        </div>
+      </div>
+
+      <div class="panel artifact-card">
+        <h2>Artifacts</h2>
+        <div class="artifact-list">
+          <div><span>Input CSV</span><strong id="inputCsv">-</strong></div>
+          <div><span>Report JSON</span><strong id="reportFlag">-</strong></div>
+          <div><span>Image Boundary</span><strong id="boundaryFlag">-</strong></div>
+          <div><span>Slide Image</span><strong id="imageFlag">-</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>Workflow Progress</h2>
+        <div class="badge-row">
+          <span id="activeStepBadge" class="badge">No active step</span>
+          <span id="activeSubstepBadge" class="badge muted">No active substep</span>
+        </div>
+      </div>
+      <div id="steps" class="steps"></div>
+    </section>
+
+    <section class="grid bottom-grid assistant-grid">
+      <div class="panel">
+        <div class="section-head">
+          <h2>Workflow Assistant</h2>
+          <div class="hero-actions">
+            <button id="assistantSuggest">Suggest Change</button>
+            <button id="assistantApply" class="secondary">Apply Suggestion</button>
+            <button id="assistantUndo" class="secondary">Undo Last</button>
+          </div>
+        </div>
+        <p class="hint">Natural-language editor backed by GPT-5.4. The pipeline is now data-driven — every step carries an executable <code>action</code>. You can: rewrite / append / add / remove prompts, add / remove / reorder steps, and update a step's action. New steps that bind to an LLM action will <strong>actually run</strong> as part of the pipeline.</p>
+        <textarea id="assistantMessage" class="assistant-box" placeholder="Example: rewrite prompt_3 to emphasise stability over absolute scores; add a new step called 'Validate Output' after image_render."></textarea>
+        <pre id="assistantSuggestion" class="code-box"></pre>
+      </div>
+
+      <div class="panel">
+        <div class="section-head">
+          <h2>Workflow Prompts</h2>
+          <div class="hero-actions">
+            <button id="resetDashboard">Reset Dashboard</button>
+            <button id="resetPrompts">Reset Prompts</button>
+            <button id="savePrompts" class="secondary">Save Prompts</button>
+          </div>
+        </div>
+        <div id="prompts" class="prompt-list"></div>
+      </div>
+    </section>
+
+    <section class="grid bottom-grid">
+      <div class="panel">
+        <h2>Report Preview</h2>
+        <pre id="reportPreview" class="code-box"></pre>
+      </div>
+
+      <div class="panel">
+        <h2>PPT Preview</h2>
+        <div id="imagePreviewWrap" class="image-preview empty">No PPT preview yet</div>
+      </div>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
