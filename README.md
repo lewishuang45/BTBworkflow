@@ -92,6 +92,14 @@ The project also supports a lightweight template descriptor via `analysis_templa
 
 This is the next step toward a multi-template analytics product.
 
+## Workspace Layout
+
+You can now organize project inputs more like a reusable analytics workspace.
+
+- Put reusable datasets in `datasets/`
+- Put reusable template files in `templates/`
+- The dashboard discovers these files automatically
+
 ## Publish-safe notes
 
 - Real credentials are not included.

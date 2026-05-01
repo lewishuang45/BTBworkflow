@@ -58,7 +58,7 @@
     {
       "id": "analysis_report",
       "title": "Generate Analysis Report",
-      "detail": "Call the configured text model to generate a structured JSON analysis report.",
+      "detail": "Call the configured text model to generate a structured JSON analysis report using the active template.",
       "stages": [
         "all",
         "report"
@@ -102,7 +102,7 @@
     {
       "id": "ppt_outline",
       "title": "Generate PPT Outline",
-      "detail": "Build a one-slide PPT outline and chart-ready data from the report.",
+      "detail": "Build a one-slide PPT outline and chart-ready data from the report using the active template.",
       "stages": [
         "all",
         "report"
@@ -140,7 +140,7 @@
       "substeps": [
         {
           "id": "send_outline_prompt",
-          "label": "Send outline prompt to GPT-5.4"
+          "label": "Send outline prompt to text model"
         },
         {
           "id": "save_report_json",
@@ -151,7 +151,7 @@
     {
       "id": "image_boundary",
       "title": "Extract Image Data Boundary",
-      "detail": "Ask GPT-5.4 to extract report-specific soft boundaries for image generation.",
+      "detail": "Extract report-specific soft boundaries for image generation.",
       "stages": [
         "all",
         "report",
@@ -171,7 +171,7 @@
         },
         {
           "id": "extract_boundary_rules",
-          "label": "Extract image data boundary with GPT-5.4"
+          "label": "Extract image data boundary"
         },
         {
           "id": "save_boundary_json",

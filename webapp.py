@@ -25,6 +25,12 @@ TEMPLATE_FILE = ROOT / "analysis_template.json"
 
 def list_dataset_files():
     files = []
+    datasets_dir = ROOT / "datasets"
+    if datasets_dir.exists():
+        for path in sorted(datasets_dir.glob("*.csv")):
+            files.append(f"datasets/{path.name}")
+        for path in sorted(datasets_dir.glob("*.xlsx")):
+            files.append(f"datasets/{path.name}")
     for path in sorted(ROOT.glob("*.csv")):
         files.append(path.name)
     for path in sorted(ROOT.glob("*.xlsx")):
@@ -34,6 +40,10 @@ def list_dataset_files():
 
 def list_template_files():
     files = []
+    templates_dir = ROOT / "templates"
+    if templates_dir.exists():
+        for path in sorted(templates_dir.glob("*.json")):
+            files.append(f"templates/{path.name}")
     for path in sorted(ROOT.glob("*template*.json")):
         files.append(path.name)
     return files

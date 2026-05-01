@@ -155,6 +155,11 @@ def load_template() -> dict:
         "template_id": "leaderboard_comparison",
         "name": "Leaderboard Comparison",
         "description": "Analyze ranked performance groups and generate a structured report plus presentation assets.",
+        "report_system_prompt": "You are a rigorous data analyst. Always return strict JSON only.",
+        "outline_system_prompt": "You are a presentation strategist. Always return strict JSON only.",
+        "report_prompt_keys": ["prompt_1", "prompt_2"],
+        "outline_prompt_keys": ["prompt_3"],
+        "image_prompt_keys": ["prompt_4"],
     }
     if not TEMPLATE_FILE.exists():
         return fallback
@@ -612,6 +617,38 @@ def _resolve_template(value, output, ctx: dict):
     return value
 
 
+def _apply_template_to_action(step_id: str, action: dict, ctx: dict) -> dict:
+    template = ctx.get("_template") or {}
+    updated = dict(action)
+    if step_id == "analysis_report":
+        updated["system"] = template.get("report_system_prompt", updated.get("system", ""))
+        prompt_keys = template.get("report_prompt_keys") or []
+        if len(prompt_keys) >= 2:
+            updated["user_parts"] = [
+                {"prompt": prompt_keys[0]},
+                {"text": "\n\nUse the prepared dataset summary below to produce the analysis report.\n\nDataset summary:\n"},
+                {"ctx": "data_summary", "format": "json"},
+                {"text": "\n\n"},
+                {"prompt": prompt_keys[1]},
+            ]
+    elif step_id == "ppt_outline":
+        updated["system"] = template.get("outline_system_prompt", updated.get("system", ""))
+        prompt_keys = template.get("outline_prompt_keys") or []
+        if prompt_keys:
+            updated["user_parts"] = [
+                {"prompt": prompt_keys[0]},
+                {"text": "\n\nKeep the output aligned with the active analysis template and use the analysis report below.\n\nAnalysis report:\n"},
+                {"ctx": "analysis_report", "format": "json"},
+            ]
+        save_to = updated.get("save_to")
+        if isinstance(save_to, dict) and isinstance(save_to.get("wrap"), dict):
+            updated["save_to"] = dict(save_to)
+            updated["save_to"]["wrap"] = dict(save_to["wrap"])
+            updated["save_to"]["wrap"]["input_file"] = ctx.get("_schema", {}).get("input_file", INPUT_CSV.name)
+            updated["save_to"]["wrap"]["template_id"] = template.get("template_id", "default")
+    return updated
+
+
 def _do_save_to(spec: dict, output, ctx: dict) -> None:
     file_name = spec.get("file")
     if not file_name:
@@ -821,11 +858,11 @@ def load_step_definitions() -> list:
 
 
 def run_pipeline(stage: str) -> dict:
-    ctx: dict = {"_prompts": load_prompts_dict()}
+    ctx: dict = {"_prompts": load_prompts_dict(), "_schema": load_schema(), "_template": load_template()}
     summary = {"executed": [], "skipped": [], "failed": None}
     for step in load_step_definitions():
         sid = step.get("id") or "?"
-        action = step.get("action")
+        action = _apply_template_to_action(sid, step.get("action") or {}, ctx)
         stages = set(step.get("stages") or ["all"])
 
         if not isinstance(action, dict) or "type" not in action:
