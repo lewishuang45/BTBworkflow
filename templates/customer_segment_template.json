@@ -1,0 +1,33 @@
+{
+  "template_id": "customer_segment_performance",
+  "name": "Customer Segment Performance",
+  "description": "Compare segment-level conversion, value, retention, and engagement performance.",
+  "report_system_prompt": "You are a customer analytics strategist. Always return strict JSON only.",
+  "outline_system_prompt": "You are a business presentation strategist. Always return strict JSON only.",
+  "report_prompt_keys": [
+    "prompt_1",
+    "prompt_2"
+  ],
+  "outline_prompt_keys": [
+    "prompt_3"
+  ],
+  "image_prompt_keys": [
+    "prompt_4"
+  ],
+  "expected_fields": [
+    "segment",
+    "conversion_rate",
+    "avg_order_value",
+    "retention_rate",
+    "engagement_score"
+  ],
+  "recommended_schema": {
+    "ranking_column": "conversion_rate",
+    "metric_columns": [
+      "conversion_rate",
+      "avg_order_value",
+      "retention_rate",
+      "engagement_score"
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "template_id": "retail_compliance_review",
+  "name": "Retail Compliance Review",
+  "description": "Review grouped compliance, issue severity, and execution consistency for retail operations.",
+  "report_system_prompt": "You are a retail compliance analyst. Always return strict JSON only.",
+  "outline_system_prompt": "You are a business presentation strategist. Always return strict JSON only.",
+  "report_prompt_keys": [
+    "prompt_1",
+    "prompt_2"
+  ],
+  "outline_prompt_keys": [
+    "prompt_3"
+  ],
+  "image_prompt_keys": [
+    "prompt_4"
+  ],
+  "expected_fields": [
+    "store_id",
+    "region",
+    "compliance_score",
+    "issue_count",
+    "severity"
+  ],
+  "recommended_schema": {
+    "ranking_column": "compliance_score",
+    "metric_columns": [
+      "compliance_score",
+      "issue_count"
+    ]
+  }
+}

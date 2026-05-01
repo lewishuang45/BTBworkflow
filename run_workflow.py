@@ -209,6 +209,9 @@ def prepare_dataset() -> dict:
     missing = [column for column in required_columns if column not in df.columns]
     if missing:
         raise RuntimeError(f"Missing required columns from dataset schema: {missing}")
+    template = load_template()
+    expected_fields = template.get("expected_fields") or []
+    missing_expected_fields = [column for column in expected_fields if column not in df.columns]
     df = df.copy()
     if id_column in df.columns:
         cleaned = df.copy()
@@ -249,9 +252,14 @@ def prepare_dataset() -> dict:
     preview_rows = grouped.head(10).to_dict(orient="records")
     summary = {
         "schema": schema,
-        "template": load_template(),
+        "template": template,
         "row_count": int(len(grouped)),
         "columns": grouped.columns.tolist(),
+        "data_quality": {
+            "missing_required_columns": missing,
+            "missing_expected_template_fields": missing_expected_fields,
+            "null_counts": {column: int(grouped[column].isna().sum()) for column in grouped.columns},
+        },
         "group_counts": grouped["group"].value_counts().to_dict(),
         "ranking_quantiles": {
             "column": ranking_column,
@@ -261,6 +269,19 @@ def prepare_dataset() -> dict:
         },
         "preview_rows": preview_rows,
         "chart_config": chart_config,
+        "insight_starter": {
+            "findings": [
+                f"Dataset contains {len(grouped)} records grouped by {ranking_column}.",
+                f"Configured groups are {', '.join(group_labels)}."
+            ],
+            "risks": [
+                f"Template expected fields missing: {missing_expected_fields}" if missing_expected_fields else "No template field gaps detected."
+            ],
+            "recommendations": [
+                "Validate schema and template alignment before production runs.",
+                "Use chart_config for a frontend chart layer instead of parsing raw records directly."
+            ]
+        },
         "records": grouped.to_dict(orient="records"),
     }
     return round_nested(summary)

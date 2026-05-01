@@ -92,6 +92,13 @@ The project also supports a lightweight template descriptor via `analysis_templa
 
 This is the next step toward a multi-template analytics product.
 
+Available starter templates now include:
+
+- `analysis_template.json` — currently active template
+- `templates/retail_summary_template.json`
+- `templates/retail_compliance_template.json`
+- `templates/customer_segment_template.json`
+
 ## Workspace Layout
 
 You can now organize project inputs more like a reusable analytics workspace.
@@ -101,6 +108,14 @@ You can now organize project inputs more like a reusable analytics workspace.
 - The dashboard discovers these files automatically
 - Dataset preparation now also outputs `preview_rows` and `chart_config` for downstream UI use
 - You can export the latest report to a static HTML file from the dashboard
+
+## Product Development In 5 Steps
+
+1. Standardize inputs with uploads, schema mapping, and field validation.
+2. Generalize analysis with reusable templates and template-specific expectations.
+3. Add AI insight structure with findings, risks, and recommendations.
+4. Deliver outputs with chart configs, image previews, and HTML export.
+5. Evolve into a reusable workspace product with datasets, templates, and configurable runs.
 
 ## Publish-safe notes
 

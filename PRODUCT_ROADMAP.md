@@ -49,3 +49,10 @@ The first productized version should support:
 4. Add chart config output for frontend rendering
 5. Add report export targets
 
+## Productization Status
+
+- Input layer: implemented with local uploads, schema config, and preview
+- Template layer: implemented with starter templates and template switching
+- Insight layer: partially implemented with structured starter insights and AI report generation
+- Delivery layer: implemented with JSON, image preview, chart preview, and HTML export
+- Workspace layer: implemented with datasets and templates directories plus dashboard controls
