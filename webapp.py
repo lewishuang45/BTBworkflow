@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 import threading
 from datetime import datetime
@@ -21,6 +22,8 @@ ASSISTANT_FILE = ROOT / "workflow_assistant_state.json"
 PROBE_FILE = ROOT / "image_probe.png"
 SCHEMA_FILE = ROOT / "dataset_schema.json"
 TEMPLATE_FILE = ROOT / "analysis_template.json"
+DATASETS_DIR = ROOT / "datasets"
+TEMPLATES_DIR = ROOT / "templates"
 
 
 def list_dataset_files():
@@ -140,6 +143,23 @@ def save_template(template):
         payload.update(template)
     TEMPLATE_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return payload
+
+
+def activate_template_file(template_file: str):
+    source = ROOT / template_file
+    if not source.exists():
+        raise FileNotFoundError(f"Template file not found: {template_file}")
+    shutil.copyfile(source, TEMPLATE_FILE)
+    return load_template()
+
+
+def save_uploaded_dataset(file_name: str, content_base64: str):
+    import base64
+    DATASETS_DIR.mkdir(exist_ok=True)
+    safe_name = Path(file_name).name
+    target = DATASETS_DIR / safe_name
+    target.write_bytes(base64.b64decode(content_base64))
+    return f"datasets/{safe_name}"
 
 
 def default_steps():
@@ -363,8 +383,23 @@ class Handler(BaseHTTPRequestHandler):
             save_state(state)
             return self._json({"ok": True, "schema": saved})
         if self.path == "/api/template":
-            saved = save_template(body.get("template", {}))
+            template_file = body.get("template_file")
+            if template_file:
+                saved = activate_template_file(template_file)
+            else:
+                saved = save_template(body.get("template", {}))
             return self._json({"ok": True, "template": saved})
+        if self.path == "/api/datasets/upload":
+            file_name = body.get("file_name", "").strip()
+            content_base64 = body.get("content_base64", "")
+            if not file_name or not content_base64:
+                return self._json({"ok": False, "message": "file_name and content_base64 are required"}, 400)
+            stored_file = save_uploaded_dataset(file_name, content_base64)
+            schema = save_schema({"input_file": stored_file})
+            state = load_state()
+            state["artifacts"]["input_csv"] = stored_file
+            save_state(state)
+            return self._json({"ok": True, "stored_file": stored_file, "schema": schema})
         if self.path == "/api/prompts/reset":
             saved = save_prompts(DEFAULT_PROMPTS)
             state = default_state()

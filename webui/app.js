@@ -13,6 +13,7 @@
   reportPreview: document.getElementById('reportPreview'),
   datasetPreview: document.getElementById('datasetPreview'),
   chartConfigPreview: document.getElementById('chartConfigPreview'),
+  chartPreview: document.getElementById('chartPreview'),
   steps: document.getElementById('steps'),
   prompts: document.getElementById('prompts'),
   datasetSelect: document.getElementById('datasetSelect'),
@@ -33,6 +34,7 @@
   assistantUndo: document.getElementById('assistantUndo'),
   saveSchema: document.getElementById('saveSchema'),
   saveTemplate: document.getElementById('saveTemplate'),
+  uploadDataset: document.getElementById('uploadDataset'),
 };
 
 let promptDrafts = {};
@@ -54,6 +56,27 @@ function renderOptions(selectEl, items, selectedValue) {
   if (selectedValue && values.includes(selectedValue)) {
     selectEl.value = selectedValue;
   }
+}
+
+function renderChartPreview(chartConfig) {
+  if (!chartConfig || !chartConfig.group_mean_chart) {
+    stateEls.chartPreview.className = 'chart-preview empty';
+    stateEls.chartPreview.textContent = 'No chart preview yet';
+    return;
+  }
+  const chart = chartConfig.group_mean_chart;
+  const rows = chart.rows || [];
+  const series = chart.series || [];
+  const maxVal = Math.max(1, ...rows.flatMap((row) => series.map((key) => Number(row[key] || 0))));
+  stateEls.chartPreview.className = 'chart-preview';
+  stateEls.chartPreview.innerHTML = rows.map((row) => {
+    const bars = series.map((key) => {
+      const value = Number(row[key] || 0);
+      const width = Math.max(4, Math.round((value / maxVal) * 100));
+      return `<div class="mini-bar-row"><span>${key}</span><div class="mini-bar"><i style="width:${width}%"></i></div><strong>${value}</strong></div>`;
+    }).join('');
+    return `<div class="chart-card"><h3>${row.group}</h3>${bars}</div>`;
+  }).join('');
 }
 
 function renderSteps(steps, activeStep, activeSubstep) {
@@ -192,13 +215,37 @@ async function saveSchema() {
 async function saveTemplate() {
   try {
     const template = JSON.parse(stateEls.templateEditor.value || '{}');
-    await postJson('/api/template', { template });
+    await postJson('/api/template', { template, template_file: stateEls.templateSelect.value || undefined });
     await refresh();
     alert('Template saved.');
   } catch (error) {
     alert(error.message);
     showPageError(error.message);
   }
+}
+
+async function uploadDataset() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv,.xlsx';
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    bytes.forEach((b) => { binary += String.fromCharCode(b); });
+    const content_base64 = btoa(binary);
+    try {
+      await postJson('/api/datasets/upload', { file_name: file.name, content_base64 });
+      await refresh();
+      alert('Dataset uploaded.');
+    } catch (error) {
+      alert(error.message);
+      showPageError(error.message);
+    }
+  };
+  input.click();
 }
 
 async function resetPrompts() {
@@ -306,6 +353,7 @@ async function refresh() {
     stateEls.reportPreview.textContent = data.report_preview ? JSON.stringify(data.report_preview, null, 2) : 'No report generated yet.';
     stateEls.datasetPreview.textContent = data.dataset_preview ? JSON.stringify(data.dataset_preview, null, 2) : 'No dataset preview available yet.';
     stateEls.chartConfigPreview.textContent = data.chart_config ? JSON.stringify(data.chart_config, null, 2) : 'No chart config available yet.';
+    renderChartPreview(data.chart_config);
 
     if (data.assistant?.last_request && !stateEls.assistantMessage.value) {
       stateEls.assistantMessage.value = data.assistant.last_request;
@@ -329,6 +377,7 @@ async function refresh() {
     stateEls.savePrompts.disabled = running;
     stateEls.saveSchema.disabled = running;
     stateEls.saveTemplate.disabled = running;
+    stateEls.uploadDataset.disabled = running;
     stateEls.resetPrompts.disabled = running;
     stateEls.assistantSuggest.disabled = running;
     stateEls.assistantApply.disabled = running || !lastAssistantSuggestion;
@@ -358,6 +407,7 @@ stateEls.runImage.addEventListener('click', () => triggerRun('/api/run/image'));
 stateEls.savePrompts.addEventListener('click', savePrompts);
 stateEls.saveSchema.addEventListener('click', saveSchema);
 stateEls.saveTemplate.addEventListener('click', saveTemplate);
+stateEls.uploadDataset.addEventListener('click', uploadDataset);
 stateEls.resetPrompts.addEventListener('click', resetPrompts);
 stateEls.resetDashboard.addEventListener('click', resetDashboard);
 stateEls.assistantSuggest.addEventListener('click', suggestAssistantChange);

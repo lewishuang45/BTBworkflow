@@ -313,6 +313,44 @@ button:disabled {
   color: #64748b;
 }
 
+.chart-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.chart-card {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.chart-card h3 {
+  margin: 0 0 12px;
+}
+
+.mini-bar-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 48px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mini-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  overflow: hidden;
+}
+
+.mini-bar i {
+  display: block;
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+}
+
 .status-pending {
   background: #e2e8f0;
   color: #334155;
