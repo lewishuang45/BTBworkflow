@@ -19,6 +19,8 @@ PROMPTS_FILE = ROOT / "workflow_prompts.json"
 LABELS_FILE = ROOT / "workflow_labels.json"
 ASSISTANT_FILE = ROOT / "workflow_assistant_state.json"
 PROBE_FILE = ROOT / "image_probe.png"
+SCHEMA_FILE = ROOT / "dataset_schema.json"
+TEMPLATE_FILE = ROOT / "analysis_template.json"
 
 DEFAULT_PROMPTS = {
     "prompt_1": "??????????????????????????Individual,AI,CoachedAI,AugPair,Team,AugT?????????????????ID????Team?AugT???????????????????????Individual???????top?average?bottom????33.3%?",
@@ -69,6 +71,49 @@ def load_labels():
     }
     data = safe_json_load(LABELS_FILE, fallback)
     return data if isinstance(data, dict) else fallback
+
+
+def load_schema():
+    fallback = {
+        "input_file": "sampleDATA.csv",
+        "id_column": "id",
+        "id_strategy": "auto_increment",
+        "ranking_column": "Individual",
+        "metric_columns": ["Individual", "AI", "CoachedAI", "AugPair"],
+        "drop_columns": ["Team", "AugT"],
+        "group_labels": ["top", "average", "bottom"],
+    }
+    data = safe_json_load(SCHEMA_FILE, fallback)
+    return data if isinstance(data, dict) else fallback
+
+
+def save_schema(schema):
+    payload = load_schema()
+    if isinstance(schema, dict):
+        payload.update(schema)
+    SCHEMA_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return payload
+
+
+def load_template():
+    fallback = {
+        "template_id": "leaderboard_comparison",
+        "name": "Leaderboard Comparison",
+        "description": "Analyze ranked performance groups and generate a structured report plus presentation assets.",
+        "report_prompt_keys": ["prompt_1", "prompt_2"],
+        "outline_prompt_keys": ["prompt_3"],
+        "image_prompt_keys": ["prompt_4"],
+    }
+    data = safe_json_load(TEMPLATE_FILE, fallback)
+    return data if isinstance(data, dict) else fallback
+
+
+def save_template(template):
+    payload = load_template()
+    if isinstance(template, dict):
+        payload.update(template)
+    TEMPLATE_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return payload
 
 
 def default_steps():
@@ -254,6 +299,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({
                 "state": restore_state_from_artifacts(),
                 "assistant": load_assistant_state(),
+                "schema": load_schema(),
+                "template": load_template(),
                 "log": read_log_text(),
                 "report_preview": safe_json_load(OUTPUT_JSON, None) if OUTPUT_JSON.exists() else None,
                 "has_report": OUTPUT_JSON.exists(),
@@ -279,6 +326,15 @@ class Handler(BaseHTTPRequestHandler):
             state["prompts"] = saved
             save_state(state)
             return self._json({"ok": True, "prompts": saved})
+        if self.path == "/api/schema":
+            saved = save_schema(body.get("schema", {}))
+            state = load_state()
+            state["artifacts"]["input_csv"] = saved.get("input_file", state["artifacts"].get("input_csv", "sampleDATA.csv"))
+            save_state(state)
+            return self._json({"ok": True, "schema": saved})
+        if self.path == "/api/template":
+            saved = save_template(body.get("template", {}))
+            return self._json({"ok": True, "template": saved})
         if self.path == "/api/prompts/reset":
             saved = save_prompts(DEFAULT_PROMPTS)
             state = default_state()

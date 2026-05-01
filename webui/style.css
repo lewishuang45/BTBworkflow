@@ -81,6 +81,12 @@ button:disabled {
   grid-template-columns: 1fr 1fr;
 }
 
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 .meta-list,
 .artifact-list {
   display: grid;
@@ -314,7 +320,8 @@ button:disabled {
   .hero,
   .top-grid,
   .bottom-grid,
-  .assistant-grid {
+  .assistant-grid,
+  .config-grid {
     grid-template-columns: 1fr;
     display: grid;
   }

@@ -13,6 +13,8 @@
   reportPreview: document.getElementById('reportPreview'),
   steps: document.getElementById('steps'),
   prompts: document.getElementById('prompts'),
+  schemaEditor: document.getElementById('schemaEditor'),
+  templateEditor: document.getElementById('templateEditor'),
   assistantMessage: document.getElementById('assistantMessage'),
   assistantSuggestion: document.getElementById('assistantSuggestion'),
   imagePreviewWrap: document.getElementById('imagePreviewWrap'),
@@ -25,6 +27,8 @@
   assistantSuggest: document.getElementById('assistantSuggest'),
   assistantApply: document.getElementById('assistantApply'),
   assistantUndo: document.getElementById('assistantUndo'),
+  saveSchema: document.getElementById('saveSchema'),
+  saveTemplate: document.getElementById('saveTemplate'),
 };
 
 let promptDrafts = {};
@@ -157,6 +161,30 @@ async function savePrompts() {
   }
 }
 
+async function saveSchema() {
+  try {
+    const schema = JSON.parse(stateEls.schemaEditor.value || '{}');
+    await postJson('/api/schema', { schema });
+    await refresh();
+    alert('Schema saved.');
+  } catch (error) {
+    alert(error.message);
+    showPageError(error.message);
+  }
+}
+
+async function saveTemplate() {
+  try {
+    const template = JSON.parse(stateEls.templateEditor.value || '{}');
+    await postJson('/api/template', { template });
+    await refresh();
+    alert('Template saved.');
+  } catch (error) {
+    alert(error.message);
+    showPageError(error.message);
+  }
+}
+
 async function resetPrompts() {
   try {
     const payload = await postJson('/api/prompts/reset');
@@ -264,6 +292,12 @@ async function refresh() {
     if (data.assistant?.last_request && !stateEls.assistantMessage.value) {
       stateEls.assistantMessage.value = data.assistant.last_request;
     }
+    if (data.schema && document.activeElement !== stateEls.schemaEditor) {
+      stateEls.schemaEditor.value = JSON.stringify(data.schema, null, 2);
+    }
+    if (data.template && document.activeElement !== stateEls.templateEditor) {
+      stateEls.templateEditor.value = JSON.stringify(data.template, null, 2);
+    }
     if (data.assistant?.last_suggestion) {
       lastAssistantSuggestion = data.assistant.last_suggestion;
       stateEls.assistantSuggestion.textContent = JSON.stringify(data.assistant.last_suggestion, null, 2);
@@ -273,6 +307,8 @@ async function refresh() {
     stateEls.runImage.disabled = running || !data.has_report;
     stateEls.probeImage.disabled = running;
     stateEls.savePrompts.disabled = running;
+    stateEls.saveSchema.disabled = running;
+    stateEls.saveTemplate.disabled = running;
     stateEls.resetPrompts.disabled = running;
     stateEls.assistantSuggest.disabled = running;
     stateEls.assistantApply.disabled = running || !lastAssistantSuggestion;
@@ -300,6 +336,8 @@ stateEls.probeImage.addEventListener('click', probeImage);
 stateEls.runReport.addEventListener('click', () => triggerRun('/api/run/report'));
 stateEls.runImage.addEventListener('click', () => triggerRun('/api/run/image'));
 stateEls.savePrompts.addEventListener('click', savePrompts);
+stateEls.saveSchema.addEventListener('click', saveSchema);
+stateEls.saveTemplate.addEventListener('click', saveTemplate);
 stateEls.resetPrompts.addEventListener('click', resetPrompts);
 stateEls.resetDashboard.addEventListener('click', resetDashboard);
 stateEls.assistantSuggest.addEventListener('click', suggestAssistantChange);
