@@ -1,10 +1,38 @@
 # BTBworkflow
 
-AI analyst workflow starter kit for turning structured datasets into analysis reports, chart configs, and presentation-ready artifacts.
+BTBworkflow is an independent Python-based AI workflow prototype for analyst
+productivity. It demonstrates how structured datasets can be transformed into
+analysis reports, chart configs, and presentation-ready artifacts.
 
 Built for analyst productivity use cases such as investment research, business performance review, customer segmentation, and internal reporting automation.
 
 ![Dashboard preview](docs/assets/dashboard-preview.png)
+
+## Context for Reviewers
+
+BTBworkflow is an independent side project built as a public, inspectable
+example of my AI workflow and analyst-productivity thinking. It is not an
+enterprise production system. My larger professional AI workflow work has
+focused on B2B enterprise review products for large multinational retail / chain
+enterprises, but that work cannot be fully disclosed or publicly demonstrated
+due to confidentiality and compliance constraints.
+
+This repository is intended to provide a concrete, runnable example of the same
+product mindset at a smaller scale: identify a repeated workflow pain point,
+standardize the input, use AI to generate structured first-pass outputs, and
+leave final interpretation to human reviewers.
+
+## How This Relates To My Broader AI Work
+
+My broader AI work focuses on turning AI from a chat interface into structured
+business workflows. In enterprise settings, this means designing systems with
+event intake, task routing, knowledge grounding, human review, approval gates,
+audit trails, and clear governance boundaries.
+
+This repository is a smaller public example of that same approach. It is
+intentionally limited in scope so that reviewers can inspect the logic, run the
+demo, and understand the workflow without access to private enterprise
+materials.
 
 ## What It Is
 
@@ -16,14 +44,16 @@ Built for analyst productivity use cases such as investment research, business p
 4. Generate a structured analysis report and chart config.
 5. Convert the report into a presentation-style artifact for review in a lightweight local dashboard.
 
-It is designed for portfolio demos, recruiter review, lightweight analyst productivity experiments, and future SaaS-style productization.
+It is designed for portfolio demos, recruiter review, and lightweight analyst
+productivity experiments. It is a prototype, not a finished SaaS product.
 
 ## Who It Is For
 
 - Analysts who repeatedly clean structured datasets and prepare first-pass reports.
 - Product and data teams exploring internal reporting automation.
 - Hiring managers reviewing an applied AI workflow demo.
-- Developers who want a compact Python MVP before migrating to a production web stack.
+- Developers who want a compact Python MVP before exploring a fuller web
+  product architecture.
 
 ## Why This Matters For Analysts
 
@@ -154,15 +184,28 @@ The example output demonstrates the intended contract: a report JSON for narrati
 
 If a key is accidentally committed, rotate it immediately and remove it from Git history before treating the repository as public-safe.
 
+## Project Summary For Recruiters
+
+- Independent side project demonstrating AI-assisted analyst productivity.
+- Uses Python to process structured datasets and generate analysis-ready
+  outputs.
+- Supports schema-driven preparation, template-driven reporting, mock mode, and
+  local dashboard review.
+- Designed as a public example of how repeated research/reporting workflows can
+  be partially automated.
+- Complements my larger enterprise AI workflow experience, which cannot be
+  fully publicly disclosed.
+
 ## Product Roadmap
 
 1. Keep the Python MVP clean, demoable, and safe for public review.
 2. Add richer schema validation and template validation.
 3. Expand chart output contracts for dashboard and slide renderers.
 4. Add provider-neutral model adapters.
-5. Migrate the production version to a Node.js SaaS-style architecture with authentication, project workspaces, durable storage, and job queues.
+5. Explore a fuller Node.js product architecture with authentication, project
+   workspaces, durable storage, and job queues.
 
-The planned production track is documented in:
+The possible future product track is documented in:
 
 - `NODE_PRODUCT_ARCHITECTURE.md`
 - `NODE_PRODUCT_PLAN.md`

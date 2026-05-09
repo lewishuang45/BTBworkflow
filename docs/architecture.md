@@ -42,7 +42,10 @@ Live mode reads provider settings from environment variables or `.env`:
 - text model endpoint, key, API version, and deployment
 - image model endpoint, key, API version, and deployment
 
-The current implementation uses Azure OpenAI-style request shapes. A production version should wrap these calls behind provider-neutral adapters so OpenAI, Azure, Anthropic, Gemini, or local models can be configured without changing workflow logic.
+The current implementation uses Azure OpenAI-style request shapes. A future
+fuller implementation should wrap these calls behind provider-neutral adapters
+so OpenAI, Azure, Anthropic, Gemini, or local models can be configured without
+changing workflow logic.
 
 ## Mock Vs Live Mode
 
@@ -71,9 +74,9 @@ The dashboard is a local inspection surface, not a production app. It helps revi
 
 This keeps the MVP useful for demos while avoiding premature SaaS complexity.
 
-## Planned Node.js Production Migration
+## Possible Node.js Product Track
 
-The production direction is a Node.js application with:
+A fuller product direction could be a Node.js application with:
 
 - authenticated users,
 - project workspaces,
