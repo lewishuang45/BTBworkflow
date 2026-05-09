@@ -560,6 +560,8 @@ if __name__ == "__main__":
     save_prompts(load_prompts())
     if not STATE_FILE.exists():
         save_state(default_state())
-    server = HTTPServer(("127.0.0.1", 8000), Handler)
-    print("Web UI running at http://127.0.0.1:8000")
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT") or os.getenv("WEBSITES_PORT") or "8000")
+    server = HTTPServer((host, port), Handler)
+    print(f"Web UI running at http://{host}:{port}")
     server.serve_forever()
