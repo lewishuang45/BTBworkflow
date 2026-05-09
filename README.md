@@ -6,6 +6,14 @@ analysis reports, chart configs, and presentation-ready artifacts.
 
 Built for analyst productivity use cases such as investment research, business performance review, customer segmentation, and internal reporting automation.
 
+## Live Demo
+
+Try the public demo at [btbworkflow.staruptech.online](https://btbworkflow.staruptech.online).
+
+The demo is routed through Cloudflare Tunnel to a mock-mode workflow instance.
+It is intended for recruiter review, portfolio walkthroughs, and lightweight
+product demonstrations, not production use.
+
 ![Dashboard preview](docs/assets/dashboard-preview.png)
 
 ## Context for Reviewers
