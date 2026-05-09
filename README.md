@@ -14,7 +14,7 @@ The demo is routed through Cloudflare Tunnel to a mock-mode workflow instance.
 It is intended for recruiter review, portfolio walkthroughs, and lightweight
 product demonstrations, not production use.
 
-![Dashboard preview](docs/assets/dashboard-preview.png)
+![BTBworkflow dashboard preview](docs/assets/dashboard-preview.png)
 
 ## Context for Reviewers
 
@@ -81,7 +81,7 @@ E --> F[Presentation Artifact]
 F --> G[Dashboard Review]
 ```
 
-![Workflow diagram](docs/assets/workflow-diagram.png)
+![BTBworkflow workflow diagram](docs/assets/workflow-diagram.png)
 
 ## Quick Start: Mock Mode
 
@@ -161,9 +161,12 @@ Safe publishable examples are in `examples/`:
 - `examples/sample_chart_config.json`
 - `examples/sample_report.html`
 
-![Report preview](docs/assets/report-preview.png)
+![BTBworkflow image2 report preview](docs/assets/report-preview.png)
 
-The example output demonstrates the intended contract: a report JSON for narrative review plus a chart config that a dashboard or presentation renderer can consume directly.
+The example output demonstrates the intended contract: a report JSON for
+narrative review plus a chart config that a dashboard or presentation renderer
+can consume directly. The report preview is an image2-generated demonstration
+artifact, matching the dashboard's image-generation boundary.
 
 ## Project Structure
 
