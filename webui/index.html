@@ -3,175 +3,227 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workflow Dashboard</title>
+  <title>BTBworkflow</title>
   <link rel="stylesheet" href="/style.css">
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
-  <div class="wrap">
-    <header class="hero panel">
+  <main class="app-shell">
+    <header class="topbar">
       <div>
-        <p class="eyebrow">Local Workflow Control</p>
-        <h1>BTBworkflow Analytics Workbench</h1>
-        <p class="sub">Run configurable analytics workflows across reusable datasets and templates, then inspect report, chart, and slide-ready outputs in one place.</p>
+        <p class="eyebrow">BTBworkflow</p>
+        <h1>AI Analyst Workflow</h1>
       </div>
-      <div class="hero-actions">
-        <button id="exportHtml" class="secondary">Export HTML</button>
-        <button id="probeImage">Test Image API</button>
-        <button id="runReport">Run Report</button>
-        <button id="runImage" class="secondary">Run Image</button>
+      <div class="mode-switch" aria-label="Workspace mode">
+        <button class="active" type="button">Analyst</button>
+        <button type="button">Builder</button>
       </div>
     </header>
 
-    <section class="grid top-grid">
-      <div class="panel summary-card">
-        <h2>Run Summary</h2>
-        <div class="meta-list">
-          <div><span>Status</span><strong id="status">-</strong></div>
-          <div><span>Mode</span><strong id="mode">-</strong></div>
-          <div><span>Message</span><strong id="message">-</strong></div>
-          <div><span>Started</span><strong id="started">-</strong></div>
-          <div><span>Updated</span><strong id="updated">-</strong></div>
+    <section class="workspace-grid">
+      <aside class="stage-rail" aria-label="Workflow controls">
+        <div class="participant-chip">
+          <span id="status">-</span>
+          <small id="mode">-</small>
         </div>
-      </div>
 
-      <div class="panel artifact-card">
-        <h2>Artifacts</h2>
-        <div class="artifact-list">
-          <div><span>Input CSV</span><strong id="inputCsv">-</strong></div>
-          <div><span>Report JSON</span><strong id="reportFlag">-</strong></div>
-          <div><span>Image Boundary</span><strong id="boundaryFlag">-</strong></div>
-          <div><span>Slide Image</span><strong id="imageFlag">-</strong></div>
-        </div>
-      </div>
-    </section>
+        <button id="runMockAll" class="primary" type="button">Run Mock Workflow</button>
+        <button id="runReport" type="button">Run Live Report</button>
+        <button id="runImage" type="button">Render Image</button>
+        <button id="exportHtml" type="button">Export HTML</button>
 
-    <section class="panel">
-      <div class="section-head">
-        <h2>Workflow Progress</h2>
-        <div class="badge-row">
-          <span id="activeStepBadge" class="badge">No active step</span>
-          <span id="activeSubstepBadge" class="badge muted">No active substep</span>
+        <div class="rail-section">
+          <p class="eyebrow">Artifacts</p>
+          <div class="rail-row"><span>Input</span><strong id="inputCsv">-</strong></div>
+          <div class="rail-row"><span>Report</span><strong id="reportFlag">-</strong></div>
+          <div class="rail-row"><span>Boundary</span><strong id="boundaryFlag">-</strong></div>
+          <div class="rail-row"><span>Presentation</span><strong id="imageFlag">-</strong></div>
         </div>
-      </div>
-      <div id="steps" class="steps"></div>
-    </section>
 
-    <section class="grid bottom-grid assistant-grid">
-      <div class="panel">
-        <div class="section-head">
-          <h2>Config</h2>
-          <div class="hero-actions">
-            <button id="uploadDataset" class="secondary">Upload Dataset</button>
-            <button id="saveSchema" class="secondary">Save Schema</button>
-            <button id="saveTemplate" class="secondary">Save Template</button>
-          </div>
+        <div class="rail-section">
+          <p class="eyebrow">Runtime</p>
+          <div class="rail-row"><span>Started</span><strong id="started">-</strong></div>
+          <div class="rail-row"><span>Updated</span><strong id="updated">-</strong></div>
         </div>
-        <p class="hint">Edit dataset schema and analysis template without changing code.</p>
-        <div class="config-toolbar">
-          <label>
-            <span>Dataset File</span>
-            <select id="datasetSelect"></select>
-          </label>
-          <label>
-            <span>Template File</span>
-            <select id="templateSelect"></select>
-          </label>
-        </div>
-        <div class="config-grid">
+
+        <button id="probeImage" class="ghost" type="button">Test Image API</button>
+      </aside>
+
+      <div class="stage-stack">
+        <section class="panel intro-panel">
           <div>
-            <h3>Dataset Schema</h3>
-            <div class="mapping-grid">
-              <label><span>Ranking Column</span><input id="rankingColumn" type="text"></label>
-              <label><span>Metric Columns</span><input id="metricColumns" type="text" placeholder="comma separated"></label>
-              <label><span>Drop Columns</span><input id="dropColumns" type="text" placeholder="comma separated"></label>
-              <label><span>Group Labels</span><input id="groupLabels" type="text" placeholder="comma separated"></label>
+            <p class="eyebrow">Structured datasets to reviewable analyst output</p>
+            <h2>Schema-driven preparation, AI-assisted reporting, chart configs, and presentation artifacts in one local workflow.</h2>
+          </div>
+          <div class="metric-strip">
+            <div class="metric">
+              <small>Status</small>
+              <strong id="message">Ready</strong>
             </div>
-            <textarea id="schemaEditor" class="assistant-box" placeholder="dataset_schema.json"></textarea>
+            <div class="metric">
+              <small>Active step</small>
+              <strong id="activeStepBadge">No active step</strong>
+            </div>
+            <div class="metric">
+              <small>Substep</small>
+              <strong id="activeSubstepBadge">No active substep</strong>
+            </div>
           </div>
-          <div>
-            <h3>Analysis Template</h3>
-            <textarea id="templateEditor" class="assistant-box" placeholder="analysis_template.json"></textarea>
+        </section>
+
+        <section class="insight-layout">
+          <div class="panel report-showcase">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Generated output demo</p>
+                <h2>Analysis Report Artifact</h2>
+              </div>
+              <span class="source-pill">image2 generated</span>
+            </div>
+            <figure class="report-figure">
+              <a href="/demo-report-image" target="_blank" rel="noopener">
+                <img src="/demo-report-image" alt="BTBworkflow image2 generated analysis report demo">
+              </a>
+              <figcaption>
+                This demo report was generated by image2. BTBworkflow keeps an image-generation boundary and can be wired to mainstream image APIs, including Azure OpenAI, OpenAI-compatible image providers, and other configured model gateways.
+              </figcaption>
+            </figure>
           </div>
-        </div>
-      </div>
 
-      <div class="panel">
-        <div class="section-head">
-          <h2>Templates</h2>
-        </div>
-        <div id="templateCards" class="template-cards"></div>
-      </div>
-
-      <div class="panel">
-        <div class="section-head">
-          <h2>Workflow Assistant</h2>
-          <div class="hero-actions">
-            <button id="assistantSuggest">Suggest Change</button>
-            <button id="assistantApply" class="secondary">Apply Suggestion</button>
-            <button id="assistantUndo" class="secondary">Undo Last</button>
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">First pass</p>
+                <h2>Structured Findings</h2>
+              </div>
+            </div>
+            <div id="structuredFindings" class="structured-output"></div>
+            <div class="section-divider"></div>
+            <h2>Recommendations</h2>
+            <div id="structuredRecommendations" class="structured-output"></div>
           </div>
-        </div>
-        <p class="hint">Natural-language editor backed by GPT-5.4. The pipeline is now data-driven — every step carries an executable <code>action</code>. You can: rewrite / append / add / remove prompts, add / remove / reorder steps, and update a step's action. New steps that bind to an LLM action will <strong>actually run</strong> as part of the pipeline.</p>
-        <textarea id="assistantMessage" class="assistant-box" placeholder="Example: rewrite prompt_3 to emphasise stability over absolute scores; add a new step called 'Validate Output' after image_render."></textarea>
-        <pre id="assistantSuggestion" class="code-box"></pre>
-      </div>
+        </section>
 
-      <div class="panel">
-        <div class="section-head">
-          <h2>Workflow Prompts</h2>
-          <div class="hero-actions">
-            <button id="resetDashboard">Reset Dashboard</button>
-            <button id="resetPrompts">Reset Prompts</button>
-            <button id="savePrompts" class="secondary">Save Prompts</button>
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Pipeline</p>
+              <h2>Workflow Progress</h2>
+            </div>
           </div>
-        </div>
-        <div id="prompts" class="prompt-list"></div>
+          <div id="steps" class="steps"></div>
+        </section>
+
+        <section class="panel assistant-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Natural-language workflow editing</p>
+              <h2>Workflow Assistant</h2>
+            </div>
+            <div class="button-row">
+              <button id="assistantSuggest" class="primary" type="button">Suggest Change</button>
+              <button id="assistantApply" type="button">Apply</button>
+              <button id="assistantUndo" type="button">Undo</button>
+            </div>
+          </div>
+          <div class="assistant-grid">
+            <textarea id="assistantMessage" class="assistant-box short" placeholder="Example: emphasize stability over absolute scores, add a validation step, or update the image boundary wording."></textarea>
+            <pre id="assistantSuggestion" class="code-box compact"></pre>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Configuration</p>
+              <h2>Dataset Schema & Template</h2>
+            </div>
+            <div class="button-row">
+              <button id="uploadDataset" type="button">Upload Dataset</button>
+              <button id="saveSchema" type="button">Save Schema</button>
+              <button id="saveTemplate" type="button">Save Template</button>
+            </div>
+          </div>
+          <div class="config-toolbar">
+            <label>
+              <span>Dataset File</span>
+              <select id="datasetSelect"></select>
+            </label>
+            <label>
+              <span>Template File</span>
+              <select id="templateSelect"></select>
+            </label>
+          </div>
+          <div class="mapping-grid">
+            <label><span>Ranking Column</span><input id="rankingColumn" type="text"></label>
+            <label><span>Metric Columns</span><input id="metricColumns" type="text" placeholder="comma separated"></label>
+            <label><span>Drop Columns</span><input id="dropColumns" type="text" placeholder="comma separated"></label>
+            <label><span>Group Labels</span><input id="groupLabels" type="text" placeholder="comma separated"></label>
+          </div>
+          <div class="config-grid">
+            <div>
+              <h3>Active Schema</h3>
+              <textarea id="schemaEditor" class="assistant-box" placeholder="dataset_schema.json"></textarea>
+            </div>
+            <div>
+              <h3>Active Template</h3>
+              <textarea id="templateEditor" class="assistant-box" placeholder="analysis_template.json"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Template library</p>
+              <h2>Reusable Analysis Templates</h2>
+            </div>
+          </div>
+          <div id="templateCards" class="template-cards"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Prompt blocks</p>
+              <h2>Workflow Prompts</h2>
+            </div>
+            <div class="button-row">
+              <button id="resetDashboard" type="button">Reset Dashboard</button>
+              <button id="resetPrompts" type="button">Reset Prompts</button>
+              <button id="savePrompts" type="button">Save Prompts</button>
+            </div>
+          </div>
+          <div id="prompts" class="prompt-list"></div>
+        </section>
+
+        <section class="data-grid">
+          <div class="panel">
+            <h2>Chart Preview</h2>
+            <div id="chartPreview" class="chart-preview empty">No chart preview yet</div>
+            <div id="chartCanvas" class="chart-canvas"></div>
+          </div>
+          <div class="panel">
+            <h2>Presentation Preview</h2>
+            <div id="imagePreviewWrap" class="image-preview empty">No presentation preview yet</div>
+          </div>
+        </section>
+
+        <section class="data-grid">
+          <div class="panel">
+            <h2>Report JSON</h2>
+            <pre id="reportPreview" class="code-box"></pre>
+          </div>
+          <div class="panel">
+            <h2>Dataset Preview</h2>
+            <pre id="datasetPreview" class="code-box"></pre>
+            <h2>Chart Config</h2>
+            <pre id="chartConfigPreview" class="code-box"></pre>
+          </div>
+        </section>
       </div>
     </section>
-
-    <section class="grid bottom-grid">
-      <div class="panel">
-        <h2>Structured Findings</h2>
-        <div id="structuredFindings" class="structured-output"></div>
-      </div>
-
-      <div class="panel">
-        <h2>Structured Recommendations</h2>
-        <div id="structuredRecommendations" class="structured-output"></div>
-      </div>
-    </section>
-
-    <section class="grid bottom-grid">
-      <div class="panel">
-        <h2>Report Preview</h2>
-        <pre id="reportPreview" class="code-box"></pre>
-      </div>
-
-      <div class="panel">
-        <h2>PPT Preview</h2>
-        <div id="imagePreviewWrap" class="image-preview empty">No PPT preview yet</div>
-      </div>
-    </section>
-
-    <section class="grid bottom-grid">
-      <div class="panel">
-        <h2>Dataset Preview</h2>
-        <pre id="datasetPreview" class="code-box"></pre>
-      </div>
-
-      <div class="panel">
-        <h2>Chart Config</h2>
-        <pre id="chartConfigPreview" class="code-box"></pre>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>Chart Preview</h2>
-      <div id="chartPreview" class="chart-preview empty">No chart preview yet</div>
-      <div id="chartCanvas" class="chart-canvas"></div>
-    </section>
-  </div>
+  </main>
   <script src="/app.js"></script>
 </body>
 </html>

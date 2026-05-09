@@ -18,6 +18,7 @@ OUTPUT_IMAGE = ROOT / "ppt_mockup.png"
 OUTPUT_MOCK_PRESENTATION = ROOT / "mock_presentation.html"
 OUTPUT_BOUNDARY = ROOT / "image_soft_boundary.json"
 OUTPUT_HTML = ROOT / "report_output.html"
+DEMO_REPORT_IMAGE = ROOT / "docs" / "assets" / "image2-report-demo.png"
 PROMPTS_FILE = ROOT / "workflow_prompts.json"
 LABELS_FILE = ROOT / "workflow_labels.json"
 ASSISTANT_FILE = ROOT / "workflow_assistant_state.json"
@@ -340,6 +341,10 @@ def run_image_chain():
     run_command(["python", "run_workflow.py", "--stage", "image"], "image")
 
 
+def run_mock_all_chain():
+    run_command(["python", "run_workflow.py", "--stage", "all", "--mock"], "all:mock")
+
+
 def run_image_probe():
     proc = subprocess.run(["python", "probe_image2.py"], cwd=str(ROOT), capture_output=True, text=True)
     output = (proc.stdout or "") + (proc.stderr or "")
@@ -399,6 +404,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_file(OUTPUT_MOCK_PRESENTATION, "text/html; charset=utf-8")
             self.send_error(404)
             return
+        if path == "/demo-report-image":
+            if DEMO_REPORT_IMAGE.exists():
+                return self._send_file(DEMO_REPORT_IMAGE, "image/png")
+            self.send_error(404)
+            return
         if path == "/report-output":
             if OUTPUT_HTML.exists():
                 return self._send_file(OUTPUT_HTML, "text/html; charset=utf-8")
@@ -428,8 +438,10 @@ class Handler(BaseHTTPRequestHandler):
                 "has_presentation_artifact": OUTPUT_IMAGE.exists() or OUTPUT_MOCK_PRESENTATION.exists(),
                 "has_probe": PROBE_FILE.exists(),
                 "has_html_report": OUTPUT_HTML.exists(),
+                "has_demo_report_image": DEMO_REPORT_IMAGE.exists(),
                 "image_url": "/preview-image" if OUTPUT_IMAGE.exists() else None,
                 "presentation_url": "/preview-image" if OUTPUT_IMAGE.exists() else ("/mock-presentation" if OUTPUT_MOCK_PRESENTATION.exists() else None),
+                "demo_report_image_url": "/demo-report-image" if DEMO_REPORT_IMAGE.exists() else None,
                 "probe_url": "/preview-probe" if PROBE_FILE.exists() else None,
                 "html_report_url": "/report-output" if OUTPUT_HTML.exists() else None,
             })
@@ -552,6 +564,9 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/run/image":
             threading.Thread(target=run_image_chain, daemon=True).start()
             return self._json({"ok": True, "message": "Image chain started"})
+        if self.path == "/api/run/mock-all":
+            threading.Thread(target=run_mock_all_chain, daemon=True).start()
+            return self._json({"ok": True, "message": "Mock workflow started"})
         self.send_error(404)
 
 

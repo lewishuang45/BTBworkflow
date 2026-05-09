@@ -33,6 +33,7 @@
   imagePreviewWrap: document.getElementById('imagePreviewWrap'),
   probeImage: document.getElementById('probeImage'),
   exportHtml: document.getElementById('exportHtml'),
+  runMockAll: document.getElementById('runMockAll'),
   runReport: document.getElementById('runReport'),
   runImage: document.getElementById('runImage'),
   savePrompts: document.getElementById('savePrompts'),
@@ -457,6 +458,7 @@ async function refresh() {
     renderStructuredList(stateEls.structuredRecommendations, insightStarter.recommendations, 'No recommendations yet.');
 
     stateEls.runReport.disabled = running;
+    stateEls.runMockAll.disabled = running;
     stateEls.runImage.disabled = running || !data.has_report;
     stateEls.probeImage.disabled = running;
     stateEls.exportHtml.disabled = running || !data.has_report;
@@ -489,6 +491,7 @@ async function refresh() {
 
 stateEls.probeImage.addEventListener('click', probeImage);
 stateEls.exportHtml.addEventListener('click', exportHtml);
+stateEls.runMockAll.addEventListener('click', () => triggerRun('/api/run/mock-all'));
 stateEls.runReport.addEventListener('click', () => triggerRun('/api/run/report'));
 stateEls.runImage.addEventListener('click', () => triggerRun('/api/run/image'));
 stateEls.savePrompts.addEventListener('click', savePrompts);
