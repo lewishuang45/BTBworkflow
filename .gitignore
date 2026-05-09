@@ -1,13 +1,19 @@
 .env
+.venv/
+venv/
+env/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Runtime artifacts
-workflow.log
-image_stage_debug.log
+*.log
 final_output.json
+chart_config.json
 workflow_state.json
 workflow_assistant_state.json
 workflow_assistant_history.json
@@ -15,14 +21,18 @@ image_soft_boundary.json
 
 # Generated media
 ppt_mockup.png
+mock_presentation.html
 image2_probe.png
 image_probe.png
 report_output.html
+*.generated.html
 datasets/*.csv
 datasets/*.xlsx
+uploads/
 
 # OS / editor
 .DS_Store
 Thumbs.db
 .vscode/
+.idea/
 .claude/

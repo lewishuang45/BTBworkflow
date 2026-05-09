@@ -1,0 +1,7 @@
+account_id,segment,revenue_growth,margin_score,retention_score,ai_readiness
+A-001,Enterprise,12.4,78,91,84
+A-002,Enterprise,8.1,72,88,79
+A-003,Midmarket,15.6,69,83,81
+A-004,Midmarket,4.2,65,76,73
+A-005,SMB,18.3,61,70,77
+A-006,SMB,6.8,58,74,68

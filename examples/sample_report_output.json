@@ -1,0 +1,33 @@
+{
+  "status": "success",
+  "mode": "example",
+  "generated_by": "BTBworkflow sample artifact",
+  "input_file": "examples/sample_input.csv",
+  "report": {
+    "page_title": "Business Performance Snapshot",
+    "page_subtitle": "Example account-level analyst summary",
+    "executive_summary": "The sample dataset separates six fictional accounts into growth leaders, steady performers, and a watchlist. The output demonstrates the shape of a first-pass analyst report without using private data.",
+    "dataset_profile": {
+      "row_count": 6,
+      "ranking_column": "revenue_growth",
+      "group_counts": {
+        "growth_leaders": 2,
+        "steady_performers": 2,
+        "watchlist": 2
+      }
+    },
+    "key_findings": [
+      "Growth leaders show the strongest revenue growth but lower average retention than enterprise-heavy steady performers.",
+      "Steady performers combine healthier margin and retention scores, making them useful benchmarks for account planning.",
+      "Watchlist accounts have lower growth and AI readiness, suggesting a need for targeted enablement."
+    ],
+    "recommendations": [
+      "Use the chart config as a dashboard contract for group-level comparison.",
+      "Ask a human analyst to validate the narrative before using it in decision meetings."
+    ],
+    "chart_config": {
+      "$ref": "sample_chart_config.json"
+    }
+  },
+  "presentation_artifact": "sample_report.html"
+}

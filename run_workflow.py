@@ -1,10 +1,12 @@
 import argparse
 import base64
+import html
 import json
 import math
 import os
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -16,7 +18,9 @@ from urllib3.util.retry import Retry
 ROOT = Path(__file__).resolve().parent
 INPUT_CSV = ROOT / "sampleDATA.csv"
 OUTPUT_JSON = ROOT / "final_output.json"
+OUTPUT_CHART_CONFIG = ROOT / "chart_config.json"
 OUTPUT_IMAGE = ROOT / "ppt_mockup.png"
+OUTPUT_MOCK_PRESENTATION = ROOT / "mock_presentation.html"
 IMAGE_BOUNDARY_FILE = ROOT / "image_soft_boundary.json"
 LABELS_FILE = ROOT / "workflow_labels.json"
 STATE_FILE = ROOT / "workflow_state.json"
@@ -57,6 +61,10 @@ def round_nested(value):
     if isinstance(value, list):
         return [round_nested(item) for item in value]
     return value
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(round_nested(payload), ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def azure_openai_request(endpoint: str, api_key: str, api_version: str, deployment: str, payload: dict) -> dict:
@@ -537,6 +545,261 @@ def build_image_prompts(outline_report: dict, prompt_4: str = "Generate a single
     return [tier1, tier2, tier3]
 
 
+def _ordered_group_counts(data_summary: dict) -> dict:
+    configured = data_summary.get("schema", {}).get("group_labels") or ["top", "average", "bottom"]
+    counts = data_summary.get("group_counts", {})
+    ordered = {label: int(counts.get(label, 0)) for label in configured if label in counts}
+    for label in sorted(counts):
+        ordered.setdefault(label, int(counts[label]))
+    return ordered
+
+
+def build_mock_report_payload(data_summary: dict) -> dict:
+    chart_config = data_summary.get("chart_config", {})
+    group_counts = _ordered_group_counts(data_summary)
+    ranking = data_summary.get("ranking_quantiles", {})
+    template = data_summary.get("template", {})
+    input_file = data_summary.get("schema", {}).get("input_file", INPUT_CSV.name)
+    metric_series = chart_config.get("group_mean_chart", {}).get("series", [])
+
+    report = {
+        "page_title": "Mock Analyst Report",
+        "page_subtitle": "Schema-driven dataset summary generated without external API calls",
+        "template_id": template.get("template_id", "mock_template"),
+        "executive_summary": (
+            "This deterministic mock report shows how BTBworkflow turns a structured CSV into "
+            "grouped analysis, chart-ready configuration, and a presentation artifact."
+        ),
+        "dataset_profile": {
+            "input_file": input_file,
+            "row_count": data_summary.get("row_count", 0),
+            "columns": data_summary.get("columns", []),
+            "group_counts": group_counts,
+            "ranking_column": ranking.get("column"),
+        },
+        "key_findings": [
+            f"Loaded {data_summary.get('row_count', 0)} records and assigned them into {', '.join(group_counts)} groups.",
+            f"Prepared chart series for: {', '.join(metric_series)}.",
+            "Produced this report in mock mode, so no model endpoint, API key, or .env file was required.",
+        ],
+        "insight_starter": {
+            "findings": [
+                f"Loaded {data_summary.get('row_count', 0)} records from {input_file}.",
+                f"Prepared grouped means for {', '.join(metric_series)}.",
+                "Mock mode completed without external API calls.",
+            ],
+            "recommendations": [
+                "Validate schema mappings before using private datasets.",
+                "Use the generated chart config as the visualization contract.",
+                "Keep final interpretation with a human analyst.",
+            ],
+        },
+        "analyst_notes": [
+            "Use mock mode to validate the local workflow and dashboard before connecting a live model provider.",
+            "Treat generated insights as a first-pass draft for human review, not as final investment advice.",
+        ],
+        "recommendations": [
+            "Review schema mappings before replacing the sample CSV with business data.",
+            "Use the chart_config output as the contract for dashboard or presentation rendering.",
+            "Keep live credentials in .env or a secret manager and out of Git history.",
+        ],
+        "chart_config": chart_config,
+        "dataset_preview": data_summary.get("preview_rows", []),
+        "data_quality": data_summary.get("data_quality", {}),
+        "limitations": [
+            "Mock mode is deterministic and does not call an external model.",
+            "The sample dataset is synthetic and intended for workflow demonstration only.",
+        ],
+    }
+    return {
+        "status": "report_ready",
+        "mode": "mock",
+        "generated_by": "BTBworkflow mock mode",
+        "input_file": input_file,
+        "report": report,
+        "chart_config_file": OUTPUT_CHART_CONFIG.name,
+        "image_file": OUTPUT_MOCK_PRESENTATION.name,
+    }
+
+
+def build_mock_image_boundary(report_payload: dict) -> dict:
+    report = report_payload.get("report", {})
+    profile = report.get("dataset_profile", {})
+    return {
+        "summary": "Mock boundary generated without an external model.",
+        "authoritative_values": [
+            f"row_count={profile.get('row_count')}",
+            f"groups={json.dumps(profile.get('group_counts', {}), ensure_ascii=False)}",
+        ],
+        "chart_value_rules": [
+            "Use values exactly as provided in report.chart_config.",
+            "Do not invent additional groups, metrics, or sample sizes.",
+        ],
+        "forbidden_claims": [
+            "Do not claim causal investment impact from the sample dataset.",
+            "Do not describe the mock artifact as a live model output.",
+        ],
+        "missing_number_policy": "Omit numbers that are not present in final_output.json.",
+        "prompt_text": "Mock presentation output must stay aligned to report.chart_config and sample dataset counts.",
+    }
+
+
+def write_mock_presentation_artifact(report_payload: dict) -> None:
+    report = report_payload.get("report", {})
+    title = html.escape(str(report.get("page_title", "Mock Analyst Report")))
+    summary = html.escape(str(report.get("executive_summary", "")))
+    chart_rows = report.get("chart_config", {}).get("group_mean_chart", {}).get("rows", [])
+    rows_html = "\n".join(
+        f"<li><strong>{html.escape(str(row.get('group')))}</strong>: "
+        + ", ".join(
+            f"{html.escape(str(key))}={html.escape(str(value))}"
+            for key, value in row.items()
+            if key != "group"
+        )
+        + "</li>"
+        for row in chart_rows
+    )
+    artifact_html = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTBworkflow Mock Presentation</title>
+  <style>
+    body {{ margin: 0; font-family: Arial, sans-serif; background: #f4f7fb; color: #172033; }}
+    main {{ box-sizing: border-box; width: min(1100px, 100vw); min-height: 620px; margin: 0 auto; padding: 56px; background: #ffffff; border-top: 10px solid #2563eb; }}
+    h1 {{ margin: 0 0 12px; font-size: 40px; }}
+    .banner {{ display: inline-block; margin: 0 0 28px; padding: 8px 12px; background: #e0f2fe; color: #075985; font-weight: 700; }}
+    section {{ display: grid; grid-template-columns: 1.2fr .8fr; gap: 32px; }}
+    p, li {{ font-size: 18px; line-height: 1.5; }}
+    .panel {{ border: 1px solid #d8e0ee; padding: 24px; }}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="banner">Mock presentation output generated by BTBworkflow</div>
+    <h1>{title}</h1>
+    <section>
+      <div>
+        <p>{summary}</p>
+        <p>This artifact is safe for public demos and was generated without calling an external API.</p>
+      </div>
+      <div class="panel">
+        <h2>Chart-Ready Groups</h2>
+        <ul>{rows_html}</ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+"""
+    OUTPUT_MOCK_PRESENTATION.write_text(artifact_html, encoding="utf-8")
+
+
+def _read_labels_steps() -> list:
+    payload = _read_json_safe(LABELS_FILE, {})
+    steps = payload.get("steps") if isinstance(payload, dict) else []
+    return steps if isinstance(steps, list) else []
+
+
+def write_mock_state(stage: str, executed: list[str], skipped: list[dict], message: str) -> None:
+    executed_set = set(executed)
+    skipped_by_id = {item.get("id"): item.get("reason", "skipped") for item in skipped if isinstance(item, dict)}
+    steps = []
+    for item in _read_labels_steps():
+        sid = item.get("id", "")
+        status = "completed" if sid in executed_set else "skipped"
+        runtime_message = "mock mode completed" if status == "completed" else skipped_by_id.get(sid, "not part of this mock stage")
+        steps.append({
+            "id": sid,
+            "title": item.get("title", sid),
+            "detail": item.get("detail", ""),
+            "status": status,
+            "runtime_message": runtime_message,
+            "substeps": [
+                {
+                    "id": sub.get("id", ""),
+                    "label": sub.get("label", ""),
+                    "status": status,
+                    "runtime_message": runtime_message,
+                }
+                for sub in item.get("substeps", [])
+                if isinstance(sub, dict)
+            ],
+        })
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    state = {
+        "status": "completed",
+        "mode": f"{stage}:mock",
+        "manual_reset": False,
+        "started_at": now,
+        "updated_at": now,
+        "message": message,
+        "last_exit_code": 0,
+        "active_step": None,
+        "active_substep": None,
+        "steps": steps,
+        "artifacts": {
+            "input_csv": load_schema().get("input_file", INPUT_CSV.name),
+            "report_json": OUTPUT_JSON.name,
+            "chart_config": OUTPUT_CHART_CONFIG.name,
+            "image_boundary": IMAGE_BOUNDARY_FILE.name,
+            "presentation_artifact": OUTPUT_MOCK_PRESENTATION.name,
+        },
+        "prompts": load_prompts_dict(),
+    }
+    write_json(STATE_FILE, state)
+
+
+def run_mock_pipeline(stage: str) -> dict:
+    if stage not in {"all", "report", "image"}:
+        raise RuntimeError(f"Unsupported mock stage: {stage}")
+
+    executed: list[str] = ["load_env"]
+    skipped: list[dict] = []
+    data_summary = prepare_dataset()
+    report_payload = build_mock_report_payload(data_summary)
+    write_json(OUTPUT_JSON, report_payload)
+    write_json(OUTPUT_CHART_CONFIG, data_summary.get("chart_config", {}))
+    write_json(IMAGE_BOUNDARY_FILE, build_mock_image_boundary(report_payload))
+    executed.extend(["prepare_data", "analysis_report", "ppt_outline", "image_boundary"])
+
+    if stage in {"all", "image"}:
+        write_mock_presentation_artifact(report_payload)
+        report_payload["status"] = "success"
+        report_payload["image_mode"] = "mock"
+        report_payload["presentation_artifact"] = OUTPUT_MOCK_PRESENTATION.name
+        write_json(OUTPUT_JSON, report_payload)
+        if not OUTPUT_CHART_CONFIG.exists():
+            chart_config = report_payload.get("report", {}).get("chart_config", {})
+            write_json(OUTPUT_CHART_CONFIG, chart_config)
+        if not IMAGE_BOUNDARY_FILE.exists():
+            write_json(IMAGE_BOUNDARY_FILE, build_mock_image_boundary(report_payload))
+        executed.extend(["image_boundary", "image_brief", "image_render"])
+
+    executed = list(dict.fromkeys(executed))
+    for step in _read_labels_steps():
+        sid = step.get("id")
+        if sid and sid not in executed:
+            skipped.append({"id": sid, "reason": f"not required for mock stage {stage}"})
+
+    summary = {
+        "mode": "mock",
+        "stage": stage,
+        "executed": executed,
+        "skipped": skipped,
+        "failed": None,
+        "outputs": {
+            "report_json": OUTPUT_JSON.name,
+            "chart_config": OUTPUT_CHART_CONFIG.name,
+            "image_boundary": IMAGE_BOUNDARY_FILE.name,
+            "presentation_artifact": OUTPUT_MOCK_PRESENTATION.name if stage in {"all", "image"} else None,
+        },
+    }
+    write_mock_state(stage, executed, skipped, f"Mock {stage} workflow completed")
+    return summary
+
+
 PROMPTS_FILE = ROOT / "workflow_prompts.json"
 
 
@@ -950,10 +1213,35 @@ def run_pipeline(stage: str) -> dict:
 
 def main() -> None:
     load_dotenv()
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--stage", choices=["all", "report", "image"], default="all")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run the BTBworkflow analyst pipeline. Live mode requires configured text/image "
+            "model environment variables; mock mode runs locally with sample data and no .env."
+        ),
+        epilog=(
+            "Outputs: final_output.json, chart_config.json, image_soft_boundary.json, and "
+            "mock_presentation.html or ppt_mockup.png depending on mode. Live mode environment: "
+            "TEXT_MODEL_ENDPOINT, TEXT_MODEL_API_KEY, TEXT_MODEL_DEPLOYMENT, optional "
+            "TEXT_MODEL_API_VERSION, plus IMAGE_MODEL_ENDPOINT, IMAGE_MODEL_API_KEY, "
+            "IMAGE_MODEL_DEPLOYMENT, optional IMAGE_MODEL_API_VERSION for image rendering."
+        ),
+    )
+    parser.add_argument(
+        "--stage",
+        choices=["all", "report", "image"],
+        default="all",
+        help=(
+            "Pipeline stage to run: report prepares data and writes final_output.json; image "
+            "builds the presentation artifact from the report; all runs report then image."
+        ),
+    )
+    parser.add_argument(
+        "--mock",
+        action="store_true",
+        help="Run deterministically with the sample dataset and no external API calls or .env requirements.",
+    )
     args = parser.parse_args()
-    summary = run_pipeline(args.stage)
+    summary = run_mock_pipeline(args.stage) if args.mock else run_pipeline(args.stage)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 

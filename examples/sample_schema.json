@@ -1,0 +1,18 @@
+{
+  "input_file": "examples/sample_input.csv",
+  "id_column": "account_id",
+  "id_strategy": "existing",
+  "ranking_column": "revenue_growth",
+  "metric_columns": [
+    "revenue_growth",
+    "margin_score",
+    "retention_score",
+    "ai_readiness"
+  ],
+  "drop_columns": [],
+  "group_labels": [
+    "growth_leaders",
+    "steady_performers",
+    "watchlist"
+  ]
+}

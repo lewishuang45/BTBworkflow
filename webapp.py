@@ -15,6 +15,7 @@ STATE_FILE = ROOT / "workflow_state.json"
 LOG_FILE = ROOT / "workflow.log"
 OUTPUT_JSON = ROOT / "final_output.json"
 OUTPUT_IMAGE = ROOT / "ppt_mockup.png"
+OUTPUT_MOCK_PRESENTATION = ROOT / "mock_presentation.html"
 OUTPUT_BOUNDARY = ROOT / "image_soft_boundary.json"
 OUTPUT_HTML = ROOT / "report_output.html"
 PROMPTS_FILE = ROOT / "workflow_prompts.json"
@@ -393,6 +394,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_file(OUTPUT_IMAGE, "image/png")
             self.send_error(404)
             return
+        if path == "/mock-presentation":
+            if OUTPUT_MOCK_PRESENTATION.exists():
+                return self._send_file(OUTPUT_MOCK_PRESENTATION, "text/html; charset=utf-8")
+            self.send_error(404)
+            return
         if path == "/report-output":
             if OUTPUT_HTML.exists():
                 return self._send_file(OUTPUT_HTML, "text/html; charset=utf-8")
@@ -419,9 +425,11 @@ class Handler(BaseHTTPRequestHandler):
                 "has_report": OUTPUT_JSON.exists(),
                 "has_boundary": OUTPUT_BOUNDARY.exists(),
                 "has_image": OUTPUT_IMAGE.exists(),
+                "has_presentation_artifact": OUTPUT_IMAGE.exists() or OUTPUT_MOCK_PRESENTATION.exists(),
                 "has_probe": PROBE_FILE.exists(),
                 "has_html_report": OUTPUT_HTML.exists(),
                 "image_url": "/preview-image" if OUTPUT_IMAGE.exists() else None,
+                "presentation_url": "/preview-image" if OUTPUT_IMAGE.exists() else ("/mock-presentation" if OUTPUT_MOCK_PRESENTATION.exists() else None),
                 "probe_url": "/preview-probe" if PROBE_FILE.exists() else None,
                 "html_report_url": "/report-output" if OUTPUT_HTML.exists() else None,
             })
@@ -550,7 +558,8 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     assistant.load_dotenv()
     save_prompts(load_prompts())
-    save_state(default_state())
+    if not STATE_FILE.exists():
+        save_state(default_state())
     server = HTTPServer(("127.0.0.1", 8000), Handler)
     print("Web UI running at http://127.0.0.1:8000")
     server.serve_forever()

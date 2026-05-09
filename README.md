@@ -1,125 +1,168 @@
 # BTBworkflow
 
-`BTBworkflow` is a local Python workflow for:
+AI analyst workflow starter kit for turning structured datasets into analysis reports, chart configs, and presentation-ready artifacts.
 
-- reading a tabular CSV dataset
-- cleaning and grouping records
-- generating a structured analysis report with a configured text model API
-- turning the report into a slide-style image prompt
-- running a lightweight local dashboard to inspect workflow progress
+Built for analyst productivity use cases such as investment research, business performance review, customer segmentation, and internal reporting automation.
 
-This repository does not include live cloud credentials. You must manually provide your own API keys, endpoints, and deployment names before the workflow can run.
+![Dashboard preview](docs/assets/dashboard-preview.png)
 
-## Project structure
+## What It Is
 
-- `run_workflow.py` — main workflow entrypoint
-- `webapp.py` — local dashboard backend
-- `webui/` — dashboard frontend assets
-- `assistant.py` — prompt/workflow editing assistant
-- `workflow_prompts.json` — editable prompt configuration
-- `workflow_labels.json` — dashboard labels and workflow definitions
-- `dataset_schema.json` — schema mapping for reusable dataset preparation
-- `analysis_template.json` — reusable analysis template metadata
-- `sampleDATA.csv` — example input dataset
-- `probe_image2.py` — minimal image generation connectivity probe
-- `run_workflow.bat` / `run_workflow.ps1` — workflow launchers
-- `run_image_generate.cmd` — image-only launcher
-- `start_dashboard.cmd` — dashboard launcher
+`BTBworkflow` is a Python-based AI analyst workflow prototype that demonstrates how a structured CSV can become a reusable analysis package:
 
-## Quick start
+1. Load a CSV dataset.
+2. Apply schema-driven data preparation.
+3. Clean, rank, and group records.
+4. Generate a structured analysis report and chart config.
+5. Convert the report into a presentation-style artifact for review in a lightweight local dashboard.
 
-1. Create and activate a Python environment.
-2. Install dependencies:
+It is designed for portfolio demos, recruiter review, lightweight analyst productivity experiments, and future SaaS-style productization.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Who It Is For
 
-3. Copy `.env.example` to `.env` and manually fill in your own API settings.
-4. Run the report stage:
+- Analysts who repeatedly clean structured datasets and prepare first-pass reports.
+- Product and data teams exploring internal reporting automation.
+- Hiring managers reviewing an applied AI workflow demo.
+- Developers who want a compact Python MVP before migrating to a production web stack.
 
-   ```bash
-   python run_workflow.py --stage report
-   ```
+## Why This Matters For Analysts
 
-5. Run the image stage:
+Analysts repeatedly spend time cleaning structured datasets, segmenting records, generating first-pass insights, preparing report drafts, and creating presentation-ready outputs. BTBworkflow automates that repetitive first-pass workflow while leaving final interpretation, judgment, and communication to human analysts.
 
-   ```bash
-   python run_workflow.py --stage image
-   ```
+For investment research, business performance review, customer segmentation, and internal reporting, the goal is not to replace the analyst. The goal is to turn clean inputs into a reviewable draft faster, with chart-ready outputs that can be inspected instead of manually reconstructed.
 
-6. Or start the dashboard:
+## Workflow
 
-   ```bash
-   python webapp.py
-   ```
+```mermaid
+flowchart LR
+A[CSV Dataset] --> B[Schema Mapping]
+B --> C[Data Cleaning & Grouping]
+C --> D[AI Analysis]
+D --> E[Chart Config]
+E --> F[Presentation Artifact]
+F --> G[Dashboard Review]
+```
 
-## API Setup
+![Workflow diagram](docs/assets/workflow-diagram.png)
 
-The project is configuration-driven. Future users only need to fill in `.env`.
+## Quick Start: Mock Mode
 
-- `TEXT_MODEL_ENDPOINT` — text generation API base URL
-- `TEXT_MODEL_API_KEY` — text generation API key
-- `TEXT_MODEL_API_VERSION` — text API version
-- `TEXT_MODEL_DEPLOYMENT` — text model deployment name
-- `IMAGE_MODEL_ENDPOINT` — image generation API base URL
-- `IMAGE_MODEL_API_KEY` — image generation API key
-- `IMAGE_MODEL_API_VERSION` — image API version
-- `IMAGE_MODEL_DEPLOYMENT` — image model deployment name
+Mock mode runs the full demo without `.env`, API keys, live model endpoints, or network calls.
 
-Once these values are set, no further code changes are required.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-## Dataset Schema
+python run_workflow.py --stage report --mock
+python run_workflow.py --stage image --mock
+python run_workflow.py --stage all --mock
+python webapp.py
+```
 
-The project now supports schema-driven preparation via `dataset_schema.json`.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) after starting the dashboard.
 
-- `input_file` — input data file name
-- `id_column` — record identifier field
-- `id_strategy` — currently supports `auto_increment`
-- `ranking_column` — column used for ranking and segmentation
-- `metric_columns` — columns required for analysis
-- `drop_columns` — columns removed during cleaning
-- `group_labels` — labels assigned to top / middle / bottom segments
+Mock mode writes:
 
-## Analysis Template
+- `final_output.json`
+- `chart_config.json`
+- `image_soft_boundary.json`
+- `mock_presentation.html`
+- `workflow_state.json`
 
-The project also supports a lightweight template descriptor via `analysis_template.json`.
+These are runtime artifacts and are ignored by Git.
 
-- `template_id` — unique template identifier
-- `name` — user-facing template name
-- `description` — what the template is for
-- prompt key lists — which prompt blocks belong to report / outline / image generation
+## Quick Start: Live API Mode
 
-This is the next step toward a multi-template analytics product.
+Live mode uses the same workflow structure but calls configured model APIs.
 
-Available starter templates now include:
+```bash
+cp .env.example .env
+# Fill .env with your own local credentials only.
 
-- `analysis_template.json` — currently active template
-- `templates/retail_summary_template.json`
-- `templates/retail_compliance_template.json`
-- `templates/customer_segment_template.json`
+python run_workflow.py --stage report
+python run_workflow.py --stage image
+python run_workflow.py --stage all
+python webapp.py
+```
 
-## Workspace Layout
+Required live environment variables:
 
-You can now organize project inputs more like a reusable analytics workspace.
+- `TEXT_MODEL_ENDPOINT`
+- `TEXT_MODEL_API_KEY`
+- `TEXT_MODEL_API_VERSION`
+- `TEXT_MODEL_DEPLOYMENT`
+- `IMAGE_MODEL_ENDPOINT`
+- `IMAGE_MODEL_API_KEY`
+- `IMAGE_MODEL_API_VERSION`
+- `IMAGE_MODEL_DEPLOYMENT`
 
-- Put reusable datasets in `datasets/`
-- Put reusable template files in `templates/`
-- The dashboard discovers these files automatically
-- Dataset preparation now also outputs `preview_rows` and `chart_config` for downstream UI use
-- You can export the latest report to a static HTML file from the dashboard
+Never commit `.env` or real credential values.
 
-## Product Development In 5 Steps
+## CLI
 
-1. Standardize inputs with uploads, schema mapping, and field validation.
-2. Generalize analysis with reusable templates and template-specific expectations.
-3. Add AI insight structure with findings, risks, and recommendations.
-4. Deliver outputs with chart configs, image previews, and HTML export.
-5. Evolve into a reusable workspace product with datasets, templates, and configurable runs.
+```bash
+python run_workflow.py --help
+```
 
-## Node.js Production Track
+Supported stages:
 
-The current repository is the Python MVP reference. The planned production track is Node.js-based and documented in:
+- `--stage report` prepares the dataset, creates a structured report, chart config, and image boundary.
+- `--stage image` creates the presentation artifact from the latest report.
+- `--stage all` runs report and image stages together.
+- `--mock` runs deterministically from local sample data without external API calls.
+
+## Example Input And Output
+
+Safe publishable examples are in `examples/`:
+
+- `examples/sample_input.csv`
+- `examples/sample_schema.json`
+- `examples/sample_analysis_template.json`
+- `examples/sample_report_output.json`
+- `examples/sample_chart_config.json`
+- `examples/sample_report.html`
+
+![Report preview](docs/assets/report-preview.png)
+
+The example output demonstrates the intended contract: a report JSON for narrative review plus a chart config that a dashboard or presentation renderer can consume directly.
+
+## Project Structure
+
+- `run_workflow.py` - main workflow entrypoint and CLI.
+- `webapp.py` - lightweight local dashboard backend.
+- `webui/` - dashboard frontend assets.
+- `assistant.py` - prompt/workflow editing assistant.
+- `dataset_schema.json` - active dataset schema mapping.
+- `analysis_template.json` - active analysis template metadata.
+- `workflow_labels.json` - workflow step definitions and dashboard labels.
+- `workflow_prompts.json` - editable prompt blocks for live runs.
+- `sampleDATA.csv` - local sample dataset for the MVP and mock mode.
+- `examples/` - safe sample inputs and expected outputs for public review.
+- `docs/assets/` - visual documentation placeholders.
+- `docs/architecture.md` - concise architecture note.
+- `PUBLIC_RELEASE_CHECKLIST.md` - safety checklist before making the repo public.
+
+## Security And API Key Handling
+
+- `.env` is ignored and must stay local.
+- `.env.example` contains placeholders only.
+- Mock mode requires no credentials.
+- Live credentials should come from local environment variables or a secret manager.
+- Do not commit real API keys, endpoints, deployment names, tokens, local absolute paths, personal data, or private datasets.
+- Run the checks in `PUBLIC_RELEASE_CHECKLIST.md` before publishing.
+
+If a key is accidentally committed, rotate it immediately and remove it from Git history before treating the repository as public-safe.
+
+## Product Roadmap
+
+1. Keep the Python MVP clean, demoable, and safe for public review.
+2. Add richer schema validation and template validation.
+3. Expand chart output contracts for dashboard and slide renderers.
+4. Add provider-neutral model adapters.
+5. Migrate the production version to a Node.js SaaS-style architecture with authentication, project workspaces, durable storage, and job queues.
+
+The planned production track is documented in:
 
 - `NODE_PRODUCT_ARCHITECTURE.md`
 - `NODE_PRODUCT_PLAN.md`
@@ -127,19 +170,21 @@ The current repository is the Python MVP reference. The planned production track
 - `NODE_BACKLOG.md`
 - `NODE_MIGRATION_MAP.md`
 
-## Publish-safe notes
+## Validation
 
-- Real credentials are not included.
-- No live cloud resource names are required by default; you must configure your own `.env` values.
-- Runtime caches, logs, and generated outputs are ignored by Git.
-- The included CSV is treated as example project data; replace it if your real dataset is not public.
-- Files created through dashboard uploads or report export are considered local runtime artifacts and are not intended to stay in version control.
+Run smoke checks locally:
 
-## Release Notes
+```bash
+python run_workflow.py --stage report --mock
+python run_workflow.py --stage image --mock
+python run_workflow.py --stage all --mock
+python -m pytest
+```
 
-This repository is intentionally kept as a clean product starter:
+Then start the dashboard:
 
-- example source files are included
-- generated runtime outputs are excluded
-- uploaded datasets belong in local development, not in Git history
-- exported HTML reports are local deliverables, not source assets
+```bash
+python webapp.py
+```
+
+The dashboard is intentionally local-first and suitable for inspecting workflow progress, generated JSON, chart config, and presentation artifacts.

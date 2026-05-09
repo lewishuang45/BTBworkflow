@@ -193,6 +193,19 @@ function renderImagePreview(url, emptyText, wrapEl, alt) {
   wrapEl.innerHTML = `<a href="${url}" target="_blank" rel="noopener"><img src="${cacheBustedUrl}" data-src="${url}" alt="${alt}" /></a>`;
 }
 
+function renderPresentationPreview(data) {
+  if (data.image_url) {
+    renderImagePreview(data.image_url, 'No presentation preview yet', stateEls.imagePreviewWrap, 'presentation preview');
+    return;
+  }
+  if (data.presentation_url) {
+    stateEls.imagePreviewWrap.className = 'image-preview empty';
+    stateEls.imagePreviewWrap.innerHTML = `<a href="${data.presentation_url}" target="_blank" rel="noopener">Open mock presentation artifact</a>`;
+    return;
+  }
+  renderImagePreview(null, 'No presentation preview yet', stateEls.imagePreviewWrap, 'presentation preview');
+}
+
 async function postJson(path, payload = null) {
   const response = await fetch(path, {
     method: 'POST',
@@ -412,7 +425,7 @@ async function refresh() {
     stateEls.inputCsv.textContent = state.artifacts?.input_csv || 'missing';
     stateEls.reportFlag.textContent = data.has_report ? 'ready' : 'missing';
     stateEls.boundaryFlag.textContent = data.has_boundary ? 'ready' : 'missing';
-    stateEls.imageFlag.textContent = data.has_image ? 'ready' : 'missing';
+    stateEls.imageFlag.textContent = data.has_presentation_artifact ? 'ready' : 'missing';
     stateEls.reportPreview.textContent = data.report_preview ? JSON.stringify(data.report_preview, null, 2) : 'No report generated yet.';
     stateEls.datasetPreview.textContent = data.dataset_preview ? JSON.stringify(data.dataset_preview, null, 2) : 'No dataset preview available yet.';
     stateEls.chartConfigPreview.textContent = data.chart_config ? JSON.stringify(data.chart_config, null, 2) : 'No chart config available yet.';
@@ -465,7 +478,7 @@ async function refresh() {
       renderPrompts(state.prompts || {});
     }
 
-    renderImagePreview(data.has_image ? '/preview-image' : null, 'No PPT preview yet', stateEls.imagePreviewWrap, 'ppt preview');
+    renderPresentationPreview(data);
   } catch (error) {
     console.error(error);
     showPageError(`Frontend refresh failed: ${error.message}`);

@@ -1,0 +1,44 @@
+{
+  "group_mean_chart": {
+    "type": "bar",
+    "x_key": "group",
+    "series": [
+      "revenue_growth",
+      "margin_score",
+      "retention_score",
+      "ai_readiness"
+    ],
+    "rows": [
+      {
+        "group": "growth_leaders",
+        "revenue_growth": 16.95,
+        "margin_score": 65.0,
+        "retention_score": 76.5,
+        "ai_readiness": 79.0
+      },
+      {
+        "group": "steady_performers",
+        "revenue_growth": 10.25,
+        "margin_score": 75.0,
+        "retention_score": 89.5,
+        "ai_readiness": 81.5
+      },
+      {
+        "group": "watchlist",
+        "revenue_growth": 5.5,
+        "margin_score": 61.5,
+        "retention_score": 75.0,
+        "ai_readiness": 70.5
+      }
+    ]
+  },
+  "ranking_distribution": {
+    "type": "box_summary",
+    "column": "revenue_growth",
+    "quantiles": {
+      "q25": 7.13,
+      "q50": 10.25,
+      "q75": 14.8
+    }
+  }
+}

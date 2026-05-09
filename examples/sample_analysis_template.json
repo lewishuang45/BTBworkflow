@@ -1,0 +1,25 @@
+{
+  "template_id": "business_performance_snapshot",
+  "name": "Business Performance Snapshot",
+  "description": "Create a first-pass analyst summary from account-level performance metrics.",
+  "report_system_prompt": "You are a business analyst. Return concise JSON only.",
+  "outline_system_prompt": "You are a presentation strategist. Return concise JSON only.",
+  "report_prompt_keys": [
+    "prompt_1",
+    "prompt_2"
+  ],
+  "outline_prompt_keys": [
+    "prompt_3"
+  ],
+  "image_prompt_keys": [
+    "prompt_4"
+  ],
+  "expected_fields": [
+    "account_id",
+    "segment",
+    "revenue_growth",
+    "margin_score",
+    "retention_score",
+    "ai_readiness"
+  ]
+}
